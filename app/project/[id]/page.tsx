@@ -1,12 +1,8 @@
 import ProjectDetails from "@/components/ProjectDetails";
 import { fetchProjectDetails } from "@/utils/project-id";
 
-interface PageProps {
-    params: { id: string };
-}
-
-export default async function ApplyPage({ params }: PageProps) {
-    const id = params.id;
+export default async function ApplyPage({ params }: { params: Promise<{ id: string }> }) {
+    const {id : id} = await params;
 
     let project: any = null;
     try {

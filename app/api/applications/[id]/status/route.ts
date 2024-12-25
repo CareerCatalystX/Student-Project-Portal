@@ -27,11 +27,11 @@ async function authenticateProfessor(req: NextRequest) {
     }
 }
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }): Promise<NextResponse> {
+export async function PATCH(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     try {
         const { professorId } = await authenticateProfessor(req);
 
-        const applicationId = context.params.id;
+        const {id : applicationId} = await params;
         if (!applicationId) {
             return NextResponse.json({ message: 'Application ID is required' }, { status: 400 });
         }
