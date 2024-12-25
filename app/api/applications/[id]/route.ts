@@ -27,11 +27,11 @@ async function authenticateStudent(req: NextRequest) {
     }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: { id: string } }): Promise<NextResponse> {
     try {
         const { studentId } = await authenticateStudent(req);
 
-        const applicationId = params.id;
+        const applicationId = context.params.id;
 
         if (!applicationId) {
             return NextResponse.json({ message: 'Application ID is required' }, { status: 400 });

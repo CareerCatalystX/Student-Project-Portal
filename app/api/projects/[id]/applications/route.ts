@@ -27,11 +27,11 @@ async function authenticateProfessor(req: NextRequest) {
     }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: { id: string } }): Promise<NextResponse> {
     try {
         const { professorId } = await authenticateProfessor(req);
 
-        const projectId = params.id;
+        const projectId = context.params.id;
 
         if (!projectId) {
             return NextResponse.json({ message: 'Project ID is required' }, { status: 400 });
