@@ -6,7 +6,7 @@ interface PageProps {
 }
 
 export default async function ApplyPage({ params }: PageProps) {
-    const { id } = await params;
+    const id = params.id;
 
     let project: any = null;
     try {

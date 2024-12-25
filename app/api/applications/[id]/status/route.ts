@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     try {
         const { professorId } = await authenticateProfessor(req);
 
-        const { id: applicationId } = await params;
+        const applicationId = params.id;
         if (!applicationId) {
             return NextResponse.json({ message: 'Application ID is required' }, { status: 400 });
         }

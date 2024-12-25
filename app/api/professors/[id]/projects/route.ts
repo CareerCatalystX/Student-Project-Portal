@@ -31,7 +31,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     try {
         await authenticateStudent(req);
 
-        const { id: professorId } = await params;
+        const professorId = params.id;
 
         if (!professorId) {
             return NextResponse.json({ message: 'Professor ID is required' }, { status: 400 });

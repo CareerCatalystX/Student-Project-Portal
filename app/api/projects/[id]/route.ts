@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 export async function GET( _: any, { params }: { params: { id: string } }) {
-    const { id } = await params;
+    const id = params.id;
     if (!id) {
         return NextResponse.json({ message: 'Project ID is required' }, { status: 400 });
     }
