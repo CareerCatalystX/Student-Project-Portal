@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Professor {
+  id            String   @id @default(uuid())
+  name          String
+  department    String
+  email         String   @unique
+  password      String
+  otp           String?
+  otpExpiresAt  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  resetToken    String?  // Token for password reset
+  resetTokenExpiresAt DateTime? // Expiration for reset token
+  projects      Project[] @relation("ProfessorProjects")
+}
+
+
+model Student {
+  id         String    @id @default(uuid())
+  name       String
+  email      String    @unique
+  password   String  
+  otp         String?
+  otpExpiresAt DateTime?  
+  college    String
+  year       String
+  branch     String
+  cvUrl      String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resetToken    String?  // Token for password reset
+  resetTokenExpiresAt DateTime? // Expiration for reset token
+  applications Application[]
+}
+
+model Project {
+  id           String    @id @default(uuid())
+  title        String
+  description  String
+  duration     String
+  stipend      Float?
+  deadline     String
+  features     String[]
+  closed Boolean @default(false)
+  professorId  String
+  professor    Professor @relation("ProfessorProjects", fields: [professorId], references: [id])
+  professorName String
+  department   String
+  applications Application[]
+}
+
+model Application {
+  id         String    @id @default(uuid())
+  projectId  String
+  studentId  String
+  status     ApplicationStatus @default(pending)
+  appliedAt  String
+  project    Project @relation(fields: [projectId], references: [id])
+  student    Student @relation(fields: [studentId], references: [id])
+}
+
+enum ApplicationStatus {
+  pending
+  accepted
+  rejected
+}
