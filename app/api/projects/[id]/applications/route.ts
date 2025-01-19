@@ -55,6 +55,13 @@ export async function GET(req: NextRequest, {params}: { params: Promise<{ id: st
                         id: true,
                         name: true,
                         email: true,
+                        cvUrl: true,
+                        branch: true
+                    },
+                },
+                project: {
+                    select: {
+                        title: true, // Include the project title (name)
                     },
                 },
             },

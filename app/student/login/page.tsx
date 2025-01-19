@@ -140,7 +140,7 @@ export default function LoginPage() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-2">
             <div className="text-sm text-muted-foreground text-red-500">
                 {err ? err : ""}
             </div>
@@ -159,6 +159,14 @@ export default function LoginPage() {
               className="hover:text-primary underline underline-offset-4"
             >
               Sign up
+            </Link>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            <Link
+              href="/"
+              className="hover:text-primary underline underline-offset-4"
+            >
+              Back to Home
             </Link>
           </div>
         </CardFooter>

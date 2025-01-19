@@ -29,33 +29,23 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-      <div className="container flex h-14 items-center">
+      <div className="container flex h-14 items-center w-full justify-between">
         <div className="mr-4 flex">
-          <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold">Project Display</span>
+        <Link href="/dashboard" className="mr-6 flex items-center space-x-2 sm:space-x-4">
+          <span className="font-bold text-lg sm:text-xl">Project Display</span>
+        </Link>
+
+        <nav className="items-center space-x-6 text-sm font-medium hidden lg:flex">
+          <Link href="/" className="transition-colors hover:text-foreground/80">
+            Projects
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link
-              href="/dashboard"
-              className="transition-colors hover:text-foreground/80"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/"
-              className="transition-colors hover:text-foreground/80"
-            >
-              Projects
-            </Link>
-            <Link
-              href="/applications"
-              className="transition-colors hover:text-foreground/80"
-            >
-              Applications
-            </Link>
-          </nav>
+          <Link href="/applications" className="transition-colors hover:text-foreground/80">
+            Applications
+          </Link>
+        </nav>
+
         </div>
-        <div className="ml-auto flex items-center space-x-4">
+        <div className="flex items-center space-x-4">
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

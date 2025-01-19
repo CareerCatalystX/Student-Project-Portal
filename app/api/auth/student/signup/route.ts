@@ -2,10 +2,20 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { sendOTP } from '@/lib/email';
+import { studentSignupSchema } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, college, year, branch, cvUrl } = await req.json();
+    const body = await req.json();
+
+    // Validate request body
+    const result = studentSignupSchema.safeParse(body);
+    if (!result.success) {
+      const errorMessage = result.error.issues[0].message;
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
+
+    const { name, email, password, college, year, branch, cvUrl } = body;
 
     // Check if student already exists
     const existingStudent = await prisma.student.findUnique({
@@ -36,7 +46,7 @@ export async function POST(req: Request) {
         branch,
         cvUrl,
         otp, // Temporary OTP field for verification
-        otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP valid for 10 minutes
+        otpExpiresAt: new Date(Date.now() + 60 * 1000), // OTP valid for 1 minutes
       },
     });
 

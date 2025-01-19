@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,16 +18,16 @@ import {
 import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
-    newPassword: z
-      .string()
-      .min(6, "Password must be at least 6 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-  });
+  newPassword: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+    ),
+});
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
@@ -74,10 +74,9 @@ export default function ResetPasswordPage() {
         throw new Error("Failed to update password");
       }
 
-      // Redirect to dashboard after successful password update
-      if(role == "professor"){
+      if (role === "professor") {
         router.push("/professor/login");
-      }else{
+      } else {
         router.push("/student/login");
       }
     } catch (error) {
@@ -101,36 +100,36 @@ export default function ResetPasswordPage() {
             className="space-y-4"
           >
             <FormField
-            control={form.control}
+              control={form.control}
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>New Password</FormLabel>
                   <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your new password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                    />
-                    <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                          <span className="sr-only">
-                            {showPassword ? "Hide password" : "Show password"}
-                          </span>
-                        </Button>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your new password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          {showPassword ? "Hide password" : "Show password"}
+                        </span>
+                      </Button>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -149,5 +148,13 @@ export default function ResetPasswordPage() {
         </Form>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

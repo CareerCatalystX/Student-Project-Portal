@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LayoutDashboard, User, FileText, LogOut, Plus } from 'lucide-react'
+import { LayoutDashboard, User,CircleUserRound, FileText, LogOut, Plus } from 'lucide-react'
 import { ProfessorProfile } from "@/types/api-professor"
 
 import { Button } from "@/components/ui/button"
@@ -24,46 +24,48 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
   const handleLogout = async () => {
     localStorage.removeItem("authToken")
-    router.push("/auth/login")
+    router.push("/")
   }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 flex">
-          <Link href="/professor/dashboard" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold">Project Display</span>
-          </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link
-              href="/professor/dashboard"
-              className="transition-colors hover:text-foreground/80"
-            >
-              Dashboard
+      <div className="flex h-14 items-center justify-between">
+        <div className="mr-4 flex items-center">
+          <div>
+            <Link href="/professor/dashboard" >
+            <h1 className="text-xl font-semibold tracking-tight text-blue-700">
+              Project Display
+            </h1>
             </Link>
-            <Link
-              href="/professor/applications"
-              className="transition-colors hover:text-foreground/80"
-            >
+            <p className="text-xs text-muted-foreground text-blue-500">
+              IIT Jammu Research Portal
+            </p>
+          </div>
+
+          <nav className="items-center space-x-6 text-sm font-medium hidden lg:flex ml-6 text-blue-700 ">
+            <Link href="/professor/applications" className="transition-colors hover:text-blue-800">
               Applications
             </Link>
           </nav>
         </div>
-        <div className="ml-auto flex items-center space-x-4">
-          <Button asChild>
-            <Link href="/project/create">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Project
-            </Link>
-          </Button>
+
+        <div className="flex items-center space-x-4">
+        <Button className="bg-blue-700 hover:bg-blue-800">
+          <Link href="/professor/create" className="flex items-center space-x-1 text-xs sm:text-sm">
+            <Plus className="sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Create Project</span>
+          </Link>
+        </Button>
+
+
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative h-8 w-8 rounded-full hover:bg-blue-100"
                 >
-                  <User className="h-4 w-4" />
+                  <User className="text-blue-700" size={40} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -101,4 +103,3 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
     </header>
   )
 }
-

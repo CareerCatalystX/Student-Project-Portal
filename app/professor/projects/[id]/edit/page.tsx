@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Loader2, Plus, X } from 'lucide-react'
+import { useEffect, useState, Suspense, use } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Loader2, Plus, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -16,12 +16,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ProjectFormData } from "@/types/project"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProjectFormData } from "@/types/project";
+import { cn } from "@/lib/utils";
 
 const projectFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -31,13 +32,15 @@ const projectFormSchema = z.object({
   deadline: z.string().min(1, "Deadline is required"),
   features: z.array(z.string()).min(1, "At least one feature is required"),
   department: z.string().min(1, "Department is required"),
-})
+});
 
-export default function NewProjectPage() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [featureInput, setFeatureInput] = useState("")
-  const [error, setError] = useState<string | null>(null)
+
+function ProjectForm({ id }: { id: string }) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [featureInput, setFeatureInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
@@ -50,64 +53,101 @@ export default function NewProjectPage() {
       features: [],
       department: "",
     },
-  })
+  });
 
-  const { setValue, watch } = form
-  const features = watch("features")
+  const { setValue, watch } = form;
+  const features = watch("features");
+
+  // Fetch project data
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/projects/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch project data");
+
+        const { project } = await res.json();
+
+        // Set form default values with fetched data
+        setValue("title", project.title);
+        setValue("description", project.description);
+        setValue("duration", project.duration);
+        setValue("stipend", project.stipend || 0);
+        setValue("deadline", project.deadline);
+        setValue("features", project.features || []);
+        setValue("department", project.department);
+      } catch (err) {
+        console.error("Error fetching project:", err);
+        router.push("/professor/login")
+        setError("Failed to load project details");
+      } finally{
+        setLoading(false);
+      }
+    }
+
+    fetchProject();
+  }, [id, form]);
 
   const addFeature = () => {
     if (featureInput.trim() && !features.includes(featureInput.trim())) {
-      setValue("features", [...features, featureInput.trim()])
-      setFeatureInput("")
+      setValue("features", [...features, featureInput.trim()]);
+      setFeatureInput("");
     }
-  }
+  };
 
   const removeFeature = (feature: string) => {
     setValue(
       "features",
       features.filter((f) => f !== feature)
-    )
-  }
+    );
+  };
 
   async function onSubmit(data: ProjectFormData) {
-    setIsSubmitting(true)
-    setError(null)
+    setIsSubmitting(true);
+    setError(null);
 
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error("Authentication token not found")
+        throw new Error("Authentication token not found");
       }
 
-      const response = await fetch("/api/projects/create", {
-        method: "POST",
+      const response = await fetch("/api/projects/edit", {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
-      })
+        body: JSON.stringify({ id: id, ...data }),
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to create project")
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update project");
       }
 
-      router.push("/professor/dashboard")
+      router.push(`/professor/projects/${id}`);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
+  if(loading){
+    return (
+        <div className={cn("flex h-screen items-center justify-center bg-white")}>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-black"></div>
+        </div>
+      );
+  }
   return (
-    <div className="container max-w-3xl py-10 mx-auto">
+    <div className="container max-w-3xl p-4 lg:p-10 py-10 mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Project</CardTitle>
+          <CardTitle>Edit Project</CardTitle>
           <CardDescription>
-            Create a new project for students to apply to. Fill in all the required details below.
+            Update the project details below.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -172,8 +212,8 @@ export default function NewProjectPage() {
                           placeholder="Enter amount"
                           value={field.value || ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? 0 : parseFloat(e.target.value)
-                            field.onChange(value)
+                            const value = e.target.value === "" ? 0 : parseFloat(e.target.value);
+                            field.onChange(value);
                           }}
                         />
                       </FormControl>
@@ -227,8 +267,8 @@ export default function NewProjectPage() {
                         placeholder="Enter a feature"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
-                            e.preventDefault()
-                            addFeature()
+                            e.preventDefault();
+                            addFeature();
                           }
                         }}
                       />
@@ -272,7 +312,7 @@ export default function NewProjectPage() {
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Project
+                  Update Project
                 </Button>
               </div>
             </form>
@@ -280,6 +320,14 @@ export default function NewProjectPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
+export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = use(params);
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"></div>}>
+            <ProjectForm id={resolvedParams.id} />
+        </Suspense>
+    );
+}

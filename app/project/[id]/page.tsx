@@ -3,7 +3,6 @@ import { fetchProjectDetails } from "@/utils/project-id";
 
 export default async function ApplyPage({ params }: { params: Promise<{ id: string }> }) {
     const {id : id} = await params;
-
     let project: any = null;
     try {
         const data = await fetchProjectDetails(id);
@@ -24,7 +23,7 @@ export default async function ApplyPage({ params }: { params: Promise<{ id: stri
     }
 
     return (
-        <main className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <main className="flex flex-col items-center justify-center min-h-screen bg-gray-50 w-screen">
             <ProjectDetails
                 id={project.id}
                 title={project.title}
@@ -35,6 +34,7 @@ export default async function ApplyPage({ params }: { params: Promise<{ id: stri
                 department={project.department}
                 stipend={project.stipend}
                 features={project.features}
+                
             />
         </main>
     );

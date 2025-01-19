@@ -53,7 +53,7 @@ export default function ProjectPage({
       </header>
 
       <main className="container grid gap-6 px-4 py-8 md:grid-cols-3 w-screen">
-        <div className="space-y-6 md:col-span-2">
+        <div className="space-y-6 col-span-1 md:col-span-2">
           <Card>
             <CardHeader>
               <CardTitle>Project Description</CardTitle>

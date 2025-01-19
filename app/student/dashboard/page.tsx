@@ -9,18 +9,18 @@ import { cn } from "@/lib/utils"
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     async function fetchProfile() {
-      try {
-        const token = localStorage.getItem("authToken")
-        if (!token) {
-          throw new Error("Authentication token not found")
-        }
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        router.push("/student/login")
+        return
+      }
 
+      try {
         const response = await fetch("/api/auth/profile", {
           method: "GET",
           headers: {
@@ -29,36 +29,26 @@ export default function DashboardPage() {
         })
 
         if (!response.ok) {
-          throw new Error("Failed to fetch profile")
+          router.push("/student/login")
+          return
         }
 
         const data = await response.json()
         setProfile(data.user)
-      } catch (err: any) {
+      } catch {
         router.push("/student/login")
-        setError(err.message)
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
     fetchProfile()
   }, [router])
 
-  if (isLoading) {
+  if (loading || !profile) {
     return (
-      <div className={cn("flex h-screen items-center justify-center bg-white")}>
+      <div className={cn("flex mt-64 items-center justify-center bg-white")}>
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-black"></div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-destructive">{error}</p>
-        </div>
       </div>
     )
   }
@@ -66,16 +56,21 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <DashboardHeader user={profile} />
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-1 space-y-4 p-2 lg:p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <StudentProfile className="col-span-4" user={profile} />
-          <ApplicationsList className="col-span-3" applications={profile?.applications} />
+          <StudentProfile 
+            className="col-span-2 lg:col-span-3 h-fit" 
+            user={profile} 
+          />
+          <ApplicationsList 
+            className="col-span-2 lg:col-span-4" 
+            applications={profile?.applications} 
+          />
         </div>
       </div>
     </div>
   )
 }
-

@@ -52,7 +52,7 @@ export function ProjectsList({ projects = [], className, ...props }: ProjectsLis
           </div>
 
           <Button asChild className="w-full">
-            <Link href="/project/create">Create New Project</Link>
+            <Link href="/professor/create">Create New Project</Link>
           </Button>
         </div>
       </CardContent>

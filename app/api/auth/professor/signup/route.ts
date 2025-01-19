@@ -3,10 +3,20 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { sendOTP } from '@/lib/email';
+import { professorSignupSchema } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, department } = await req.json();
+    const body = await req.json();
+
+    // Validate request body
+    const result = professorSignupSchema.safeParse(body);
+    if (!result.success) {
+      const errorMessage = result.error.issues[0].message;
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
+
+    const { name, email, password, department } = body;
 
     // Check if professor already exists
     const existingProfessor = await prisma.professor.findUnique({
@@ -34,7 +44,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
         department,
         otp, // Temporary OTP field for verification
-        otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP valid for 10 minutes
+        otpExpiresAt: new Date(Date.now() + 60 * 1000), // OTP valid for 1 minutes
       },
     });
 
