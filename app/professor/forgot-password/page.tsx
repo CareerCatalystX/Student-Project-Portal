@@ -82,11 +82,11 @@ export default function ForgotPasswordPage() {
                     <Input
                       type="email"
                       placeholder="Enter your email"
-                      className="border-blue-600 focus:ring-blue-600 focus:border-blue-600"
+                      className="border-blue-600 focus:ring-blue-600 focus:border-blue-600 bg-blue-50/50 pr-10"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500" />
                 </FormItem>
               )}
             />

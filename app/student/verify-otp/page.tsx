@@ -98,12 +98,13 @@ function VerifyOTPForm() {
           name="otp"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Verification Code</FormLabel>
+              <FormLabel className="text-gray-600">Verification Code</FormLabel>
               <FormControl>
                 <InputOTP 
                   maxLength={6}
                   value={field.value}
                   onChange={field.onChange}
+                  className="border-teal-600 focus:ring-teal-600"
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -115,32 +116,45 @@ function VerifyOTPForm() {
                   </InputOTPGroup>
                 </InputOTP>
               </FormControl>
-              <FormDescription>
+              <FormDescription className="text-teal-500">
                 Enter the 6-digit code sent to your email
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Verifying..." : "Verify"}
-        </Button>
+        <Button
+                        type="submit"
+                        className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="flex space-x-2 justify-center items-center">
+                            <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
+                          </div>
+                        ) : (
+                          "Verify"
+                        )}
+                      </Button>
         <div className="text-center">
-          {countdown > 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Resend code in {countdown} seconds
-            </p>
-          ) : (
-            <Button
-              type="button"
-              disabled={isLoading}
-              onClick={handleResendOTP}
-              className="mx-auto hover:underline"
-            >
-              Resend verification code
-            </Button>
-          )}
-        </div>
+                  {countdown > 0 ? (
+                    <p className="text-sm text-teal-500">
+                      Resend code in {countdown} seconds
+                    </p>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="link"
+                      disabled={isLoading}
+                      onClick={handleResendOTP}
+                      className="mx-auto text-teal-600 hover:underline"
+                    >
+                      Resend verification code
+                    </Button>
+                  )}
+                </div>
       </form>
     </Form>
   )
@@ -148,7 +162,7 @@ function VerifyOTPForm() {
 
 export default function VerifyOTPPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-400 to-teal-600 px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>

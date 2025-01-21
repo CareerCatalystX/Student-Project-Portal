@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LayoutDashboard, User, FileText, LogOut } from 'lucide-react'
+import { LayoutDashboard, User, FileText, LogOut, Plus } from 'lucide-react'
 import { UserProfile } from "@/types/api"
 
 import { Button } from "@/components/ui/button"
@@ -29,31 +29,35 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-      <div className="container flex h-14 items-center w-full justify-between">
-        <div className="mr-4 flex">
-        <Link href="/dashboard" className="mr-6 flex items-center space-x-2 sm:space-x-4">
-          <span className="font-bold text-lg sm:text-xl">Project Display</span>
-        </Link>
+      <div className="flex h-14 items-center justify-between">
+        <div className="mr-4 flex items-center">
+          <div>
+            <Link href="/student/dashboard" >
+            <h1 className="text-xl font-semibold tracking-tight text-teal-700">
+              Project Display
+            </h1>
+            </Link>
+            <p className="text-xs text-muted-foreground ">
+              IIT Jammu Project Portal
+            </p>
+          </div>
 
-        <nav className="items-center space-x-6 text-sm font-medium hidden lg:flex">
-          <Link href="/" className="transition-colors hover:text-foreground/80">
-            Projects
-          </Link>
-          <Link href="/applications" className="transition-colors hover:text-foreground/80">
-            Applications
-          </Link>
-        </nav>
-
+          <nav className="items-center space-x-6 text-sm font-medium hidden lg:flex ml-6 text-teal-700 ">
+            <Link href="/student/applications" className="transition-colors hover:text-teal-800">
+              Applications
+            </Link>
+          </nav>
         </div>
+
         <div className="flex items-center space-x-4">
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative h-8 w-8 rounded-full hover:bg-teal-100"
                 >
-                  <User className="h-4 w-4" />
+                  <User className="text-teal-700" size={40} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -66,20 +70,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FileText className="mr-2 h-4 w-4" />
-                  <span>Applications</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} className="bg-red-50 text-red-600 hover:!bg-red-100 hover:!text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

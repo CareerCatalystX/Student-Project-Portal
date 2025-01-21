@@ -4,6 +4,7 @@ import { ProjectsList } from "@/components/projects-list";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import NoProjects from "@/components/no_project";
 
 export default function Home() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -54,28 +55,35 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex flex-col flex-grow bg-background max-w-screen overflow-x-hidden px-4">
-      <header className="border-b w-full">
-        <div className="container flex h-16 items-center justify-between w-full">
-          <h1 className="text-2xl font-bold">Project Display</h1>
+    <div className="min-h-screen flex flex-col flex-grow bg-background max-w-screen overflow-x-hidden">
+      <header className="border-b border-teal-100 bg-white shadow-sm shadow-teal-200 w-full">
+        <div className="flex h-16 items-center justify-between w-full px-4">
+        <div>
+            <h1 className="text-xl font-semibold tracking-tight text-teal-700">
+              Project Display
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              IIT Jammu Project Portal
+            </p>
+          </div>
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => router.push("/student/dashboard")}>
+            <Button variant="default" onClick={() => router.push("/student/dashboard")} className="bg-teal-100 text-teal-900 hover:bg-teal-600 hover:text-white">
               Back
             </Button>
           </div>
         </div>
       </header>
-      <main className="container py-8 w-full">
+      <main className="py-8 px-4 w-full">
         {loading ? (
           <div className={cn("flex mt-64 items-center justify-center bg-white")}>
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-black"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-teal-600"></div>
           </div>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : projects.length > 0 ? (
           <ProjectsList projects={projects} />
         ) : (
-          <p>No projects available.</p>
+          <NoProjects />
         )}
       </main>
     </div>

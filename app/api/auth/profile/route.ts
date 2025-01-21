@@ -27,7 +27,7 @@ async function authenticateUser(req: NextRequest) {
 export async function GET(req: NextRequest) {
     try {
         const { id, role } = await authenticateUser(req);
-
+        console.log(role)
         let user: any;
         if (role === 'professor') {
             user = await prisma.professor.findUnique({

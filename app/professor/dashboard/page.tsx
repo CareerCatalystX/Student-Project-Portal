@@ -22,7 +22,7 @@ export default function ProfessorDashboardPage() {
       }
 
       try {
-        const response = await fetch("/api/auth/profile", {
+        const response = await fetch("/api/auth/profile/professor", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -35,7 +35,7 @@ export default function ProfessorDashboardPage() {
         }
 
         const data = await response.json();
-        setProfile(data.user);
+        setProfile(data.professor);
       } catch {
         router.push("/professor/login");
       } finally {
@@ -58,16 +58,16 @@ export default function ProfessorDashboardPage() {
     <div className="flex min-h-screen flex-col">
       <DashboardHeader user={profile} />
       <div className="flex-1 space-y-4 p-2 lg:p-8 pt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Professor Dashboard</h2>
+        <div className="flex items-center justify-between space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight text-blue-700">Professor Dashboard</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <ProfessorProfile 
-            className="col-span-2 lg:col-span-3 h-fit w-full" 
+            className="col-span-2 lg:col-span-3 h-fit w-full bg-gradient-to-t from-white to-blue-50 shadow-md shadow-blue-100" 
             user={profile} 
           />
           <ProjectsList 
-            className="col-span-2 lg:col-span-4" 
+            className="col-span-2 lg:col-span-4 bg-gradient-to-t from-blue-500 to-blue-600" 
             projects={profile?.projects} 
           />
         </div>

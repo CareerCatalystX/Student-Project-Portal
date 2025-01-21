@@ -24,7 +24,7 @@ export default function Header() {
               Project Display
             </h1>
             <p className="text-xs text-muted-foreground text-blue-500">
-              IIT Jammu Research Portal
+              IIT Jammu Project Portal
             </p>
           </div>
 
@@ -52,7 +52,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 active:bg-blue-300 transition-all duration-200"
+                className="p-2 rounded-full  hover:bg-blue-100 active:bg-blue-300 transition-all duration-200"
                 aria-label="Open Menu"
               >
                 <Menu className="h-6 w-6 text-blue-700" />

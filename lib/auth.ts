@@ -3,6 +3,8 @@ import { z } from 'zod';
 // Student email regex pattern: YYYYxxx####@iitjammu.ac.in
 const studentEmailPattern = /^\d{4}[a-z]{3}\d{4}@iitjammu\.ac\.in$/i;
 
+const drivePattern = /^https?:\/\/(?:www\.)?drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([-\w]{25,})(?:\/view|\/preview)?(?:\?.*)?$/;
+
 // Professor email regex pattern: firstname.lastname@iitjammu.ac.in
 const professorEmailPattern = /^[a-z]+\.[a-z]+@iitjammu\.ac\.in$/i;
 
@@ -15,7 +17,9 @@ export const studentSignupSchema = z.object({
   college: z.string().min(2, 'College name is required'),
   year: z.string(),
   branch: z.string(),
-  cvUrl: z.string().url('Invalid CV URL'),
+  cvUrl: z.string().url().refine((cvUrl) => drivePattern.test(cvUrl), {
+    message: "Invalid Google Drive link. Please use the format 'https://drive.google.com/...'"
+  }),
 });
 
 export const professorSignupSchema = z.object({

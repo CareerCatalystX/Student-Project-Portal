@@ -38,7 +38,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
             </h1>
             </Link>
             <p className="text-xs text-muted-foreground text-blue-500">
-              IIT Jammu Research Portal
+              IIT Jammu Project Portal
             </p>
           </div>
 
@@ -50,7 +50,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-        <Button className="bg-blue-700 hover:bg-blue-800">
+        <Button className="bg-gradient-to-t from-blue-500 to-blue-600">
           <Link href="/professor/create" className="flex items-center space-x-1 text-xs sm:text-sm">
             <Plus className="sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Create Project</span>
@@ -78,20 +78,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FileText className="mr-2 h-4 w-4" />
-                  <span>Projects</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} className="bg-red-50 text-red-600 hover:!bg-red-100 hover:!text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

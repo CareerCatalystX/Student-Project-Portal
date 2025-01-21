@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar } from 'lucide-react'
+import { Calendar, Inbox } from 'lucide-react'
 import { Application } from "@/types/api"
 import Link from "next/link"
 
@@ -32,24 +32,25 @@ export function ApplicationsList({ applications = [], className, ...props }: App
   return (
     <Card className={className} {...props}>
       <CardHeader>
-        <CardTitle>Recent Applications</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-lg font-semibold text-white">Recent Applications</CardTitle>
+        <CardDescription className="text-white/70">
           Track the status of your project applications
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {applications.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground">
-              No applications yet
-            </p>
+            <div className="flex flex-col items-center justify-center gap-4 py-18 sm:py-11">
+            <Inbox className="h-20 w-20 text-white" />
+            <p className="text-white text-md sm:text-xl">No application yet</p>
+          </div>
           ) : (
             applications.map((application) => (
               <div
                 key={application.id}
-                className="flex flex-col space-y-2 rounded-lg border p-3"
+                className="flex flex-col space-y-2 rounded-lg border p-3 bg-white"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium leading-none">
                       Project ID: {application.projectId}
@@ -62,7 +63,7 @@ export function ApplicationsList({ applications = [], className, ...props }: App
               </div>
             ))
           )}
-          <Button variant="outline" className="w-full" asChild>
+          <Button variant="outline" className="w-full text-teal-600 hover:text-teal-600" asChild>
             <Link href="/project">Browse Projects</Link>
           </Button>
         </div>

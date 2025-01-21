@@ -27,7 +27,7 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
-            <User className="h-5 w-5 text-muted-foreground" />
+            <User className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Name</p>
               <p className="text-sm text-muted-foreground">
@@ -36,7 +36,7 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Mail className="h-5 w-5 text-muted-foreground" />
+            <Mail className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Email</p>
               <p className="text-sm text-muted-foreground">
@@ -45,7 +45,7 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <School className="h-5 w-5 text-muted-foreground" />
+            <School className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">College</p>
               <p className="text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <GraduationCap className="h-5 w-5 text-muted-foreground" />
+            <GraduationCap className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Academic Details</p>
               <p className="text-sm text-muted-foreground">
@@ -64,13 +64,18 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="outline" className="w-full" asChild>
-            <a href={user.cvUrl} target="_blank" rel="noopener noreferrer">
-              <FileText className="mr-2 h-4 w-4" />
+        <Button variant="outline" className="w-full group" asChild>
+            <a
+              href={user.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-700 bg-teal-50 hover:bg-teal-600 hover:text-white flex items-center"
+            >
+              <FileText className="mr-1 h-4 w-4 text-teal-600 group-hover:text-white" />
               View CV
             </a>
           </Button>
-          <Button className="w-full">
+          <Button className="w-full bg-teal-600 text-white hover:bg-teal-700">
             Edit Profile
           </Button>
         </div>

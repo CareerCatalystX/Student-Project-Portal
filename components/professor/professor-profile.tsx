@@ -27,7 +27,7 @@ export function ProfessorProfile({ user, className, ...props }: ProfessorProfile
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
-            <User className="h-5 w-5 text-muted-foreground" />
+            <User className="h-5 w-5 text-blue-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Name</p>
               <p className="text-sm text-muted-foreground">
@@ -36,7 +36,7 @@ export function ProfessorProfile({ user, className, ...props }: ProfessorProfile
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Mail className="h-5 w-5 text-muted-foreground" />
+            <Mail className="h-5 w-5 text-blue-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Email</p>
               <p className="text-sm text-muted-foreground">
@@ -45,7 +45,7 @@ export function ProfessorProfile({ user, className, ...props }: ProfessorProfile
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Building2 className="h-5 w-5 text-muted-foreground" />
+            <Building2 className="h-5 w-5 text-blue-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Department</p>
               <p className="text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export function ProfessorProfile({ user, className, ...props }: ProfessorProfile
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <Calendar className="h-5 w-5 text-blue-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Member Since</p>
               <p className="text-sm text-muted-foreground">
@@ -63,9 +63,6 @@ export function ProfessorProfile({ user, className, ...props }: ProfessorProfile
             </div>
           </div>
         </div>
-        <Button className="w-full">
-          Edit Profile
-        </Button>
       </CardContent>
     </Card>
   )

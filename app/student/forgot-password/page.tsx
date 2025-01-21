@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -52,7 +53,7 @@ export default function ForgotPasswordPage() {
       }
 
       setIsEmailSent(true); // Set the email sent flag to true on success
-      setStatusMessage("Password reset link has been sent to your registered email.");
+      setStatusMessage("Password reset link has been sent to your email.");
     } catch (error) {
       console.error("Error during password reset:", error);
       setStatusMessage("An error occurred. Please try again later.");
@@ -62,9 +63,9 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Forgot Password</h2>
+    <div className="flex min-h-screen items-center justify-center bg-teal-500 px-4 py-12">
+      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-md">
+        <h2 className="text-2xl font-bold text-teal-600 mb-4">Forgot Password</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -72,31 +73,47 @@ export default function ForgotPasswordPage() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel className="text-teal-600">Email Address</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="Enter your email"
+                      className="border-teal-600 focus:ring-teal-600 focus:border-teal-600 bg-teal-50/50 pr-10"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500" />
                 </FormItem>
               )}
             />
             {!isEmailSent ? (
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Sending..." : "Send Reset Link"}
-              </Button>
+              <Button
+              type="submit"
+              className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex space-x-2 justify-center items-center">
+                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
+                </div>
+              ) : (
+                "Send Reset Link"
+              )}
+            </Button>
             ) : (
-              <div className="mt-2 text-center text-sm text-green-600">
-                {statusMessage} {/* Success message after sending the email */}
-              </div>
-            )}
-            {statusMessage && !isEmailSent && (
-              <div className="mt-2 text-center text-sm text-red-600">
-                {statusMessage} {/* Error message if there's any issue */}
-              </div>
+              <Alert className="bg-green-50 text-green-600 border-green-200 mt-2">
+                <AlertDescription>{statusMessage}</AlertDescription>
+              </Alert>
+                        )}
+                        {statusMessage && !isEmailSent && (
+              <Alert
+                variant="destructive"
+                className="bg-red-50 text-red-600 border-red-200 mt-2"
+              >
+                <AlertDescription>{statusMessage}</AlertDescription>
+              </Alert>
             )}
           </form>
         </Form>

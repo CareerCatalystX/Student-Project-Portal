@@ -37,7 +37,7 @@ export async function POST(req: Request) {
         const token = jwt.sign(
           { id: student.id, role: 'student', name:student.name},
           JWT_SECRET,
-          { expiresIn: '1h' } // Token valid for 1 hour
+          { expiresIn: '10h' } // Token valid for 10 hour
         );
 
         return NextResponse.json({
