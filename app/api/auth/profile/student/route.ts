@@ -37,6 +37,11 @@ export async function GET(req: NextRequest) {
                         id: true,
                         projectId: true,
                         status: true,
+                        project: {
+                            select: {
+                              title: true,
+                            },
+                          },
                     },
                 },
             },

@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   newPassword: z
@@ -88,9 +89,9 @@ function ResetPasswordContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Update Password</h2>
+    <div className="flex min-h-screen items-center justify-center bg-yellow-600 px-4 py-12">
+      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-md">
+        <h2 className="text-2xl font-bold text-yellow-600 mb-4">Update Password</h2>
         <Form {...form}>
           <form
             onSubmit={(e) => {
@@ -104,7 +105,7 @@ function ResetPasswordContent() {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel className="text-yellow-600">New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -113,18 +114,19 @@ function ResetPasswordContent() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
+                        className="border-yellow-600 focus:ring-yellow-600 focus:border-yellow-600 bg-yellow-50/50 pr-10"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-yellow-600"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-4 w-4" color="#FDD835" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4" color="#FDD835" />
                         )}
                         <span className="sr-only">
                           {showPassword ? "Hide password" : "Show password"}
@@ -132,17 +134,29 @@ function ResetPasswordContent() {
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500" />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Updating..." : "Update Password"}
-            </Button>
+            <Button
+                type="submit"
+                className="w-full bg-yellow-600 hover:bg-yellow-700 text-white transition-colors flex justify-center items-center"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex space-x-2 justify-center items-center">
+                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
+                  </div>
+                ) : (
+                  "Update Password"
+                )}
+              </Button>
             {statusMessage && (
-              <div className="mt-2 text-center text-sm text-red-600">
-                {statusMessage}
-              </div>
+              <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
+              <AlertDescription>{statusMessage}</AlertDescription>
+            </Alert>
             )}
           </form>
         </Form>

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Header from "@/components/header";
 import NoProjects from "@/components/no_project";
+import { AlertCircle } from "lucide-react";
 
 export default function Home() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -44,7 +45,12 @@ export default function Home() {
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-700"></div>
               </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="flex w-screen h-fit mt-48 lg:mt-64 justify-center items-center">
+            <div className="bg-red-100 text-red-500 flex gap-2 p-3 rounded-md shadow">
+            <AlertCircle className="w-5 h-5" />
+            <p className="text-sm ">{error}</p>
+            </div>
+          </div>
         ) : projects.length > 0 ? (
           <ProjectsList projects={projects} />
         ) : (

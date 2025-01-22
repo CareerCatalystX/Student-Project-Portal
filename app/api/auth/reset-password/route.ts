@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get the base URL from environment variables or use localhost as a fallback
-        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        const baseUrl = process.env.BASEd_URL || 'http://localhost:3000';
 
         // Generate the reset URL
         const resetUrl = `${baseUrl}/update-password?token=${resetToken}&role=${role}`;

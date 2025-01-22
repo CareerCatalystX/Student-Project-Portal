@@ -53,7 +53,7 @@ export function ApplicationsList({ applications = [], className, ...props }: App
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium leading-none">
-                      Project ID: {application.projectId}
+                      Project : {application.project?.title}
                     </h3>
                   </div>
                   <Badge className={getStatusColor(application.status)}>

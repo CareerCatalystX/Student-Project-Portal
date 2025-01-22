@@ -18,6 +18,9 @@ interface ProjectsListProps extends React.HTMLAttributes<HTMLDivElement> {
 export function ProjectsList({ projects = [], className, ...props }: ProjectsListProps) {
   const activeProjects = projects.filter(project => !project.closed)
   const closedProjects = projects.filter(project => project.closed)
+  const isOutdated = (activeProjects:any) =>
+    activeProjects && new Date(activeProjects.deadline) < new Date() && !activeProjects.closed;
+
 
   return (
     <Card className={className} {...props}>
@@ -34,7 +37,13 @@ export function ProjectsList({ projects = [], className, ...props }: ProjectsLis
             {activeProjects.length === 0 ? (
               <p className="text-sm text-white/70">No active projects</p>
             ) : (
-              activeProjects.map((project) => (
+              activeProjects
+              .sort((a, b) =>{
+                if (isOutdated(a) && !isOutdated(b)) return 1; 
+                if (!isOutdated(a) && isOutdated(b)) return -1; 
+                return new Date(a.deadline).getTime() - new Date(b.deadline).getTime(); 
+              })
+              .map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))
             )}
@@ -62,6 +71,7 @@ export function ProjectsList({ projects = [], className, ...props }: ProjectsLis
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const isOutdated = project && new Date(project?.deadline) < new Date() && !project?.closed;
   return (
     <div className="rounded-lg border p-4  bg-white">
       <div className="flex items-start justify-between">
@@ -74,9 +84,10 @@ function ProjectCard({ project }: { project: Project }) {
         <Badge variant={project.closed ? "secondary" : "default"} className={`${
                   project.closed
                     ? "bg-red-500 hover:bg-red-600 text-white"
+                    : isOutdated ? "bg-yellow-500 hover:bg-yellow-600 text-white"
                     : "bg-green-600 hover:bg-green-700 text-white"
                 }`}>
-          {project.closed ? "Closed" : "Active"}
+          {project.closed ? "Closed" : isOutdated ? "Overdue" : "Active"}
         </Badge>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">

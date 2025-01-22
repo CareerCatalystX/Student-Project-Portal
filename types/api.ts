@@ -2,6 +2,9 @@ export interface Application {
     id: string
     projectId: string
     status: "pending" | "accepted" | "rejected"
+    project: {
+      title: string;
+    }
   }
   
   export interface UserProfile {

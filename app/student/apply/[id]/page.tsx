@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AlertTriangle, Clock, Lock } from "lucide-react";
+
+
 
 // Function to check if the user is authenticated
 async function isAuthenticated() {
@@ -113,9 +116,11 @@ export default function ApplyPage() {
     }
   };
 
+  const isOutdated = project && new Date(project?.deadline) < new Date() && !project?.closed;
+
   if (loading || !authenticated) {
     return (
-      <div className={cn("flex mt-64 items-center justify-center bg-white")}>
+      <div className={cn("flex w-screen h-screen items-center justify-center bg-white")}>
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-black"></div>
       </div>
     );
@@ -123,11 +128,29 @@ export default function ApplyPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <div className={`w-screen min-h-screen flex items-center py-8 px-4 ${project?.closed ? "bg-gradient-to-b from-blue-600 to-blue-500 shadow-md shadow-blue-50" : isOutdated ? "bg-gradient-to-b from-yellow-600 to-yellow-500 shadow-md shadow-yellow-50" : "bg-gradient-to-b from-teal-600 to-teal-500 shadow-md shadow-teal-50"}`}>
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Error</CardTitle>
-            <CardDescription>{error}</CardDescription>
+            <CardTitle className={`${project?.closed ? "text-blue-600": isOutdated ? "text-yello-600" : "text-teal-600"} text-lg`}>Error</CardTitle>
+            <CardDescription className="flex items-center space-x-2">
+            {project?.closed ? (
+              <>
+                <Lock className="w-5 h-5 text-blue-600" />
+                <span>This project is closed and no longer accepting applications.</span>
+              </>
+            ) : isOutdated ? (
+              <>
+                <Clock className="w-5 h-5 text-yellow-600" />
+                <span>This project is outdated and no longer open for applications.</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                <span>{error}</span>
+              </>
+            )}
+          </CardDescription>
+
           </CardHeader>
           <CardContent>
             <Button variant="outline" onClick={() => router.push("/project")}>
@@ -140,27 +163,32 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className={`w-screen min-h-screen py-8 px-4 ${project?.closed ? "bg-gradient-to-b from-blue-600 to-blue-500 shadow-md shadow-blue-50" : isOutdated? " bg-gradient-to-b from-yellow-600 to-yellow-500 shadow-md shadow-yellow-50" : "bg-gradient-to-b from-teal-600 to-teal-500 shadow-md shadow-teal-50"}`}>
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Project Application</CardTitle>
+          <CardTitle className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-600": "text-teal-600"} text-lg`}>Project Application</CardTitle>
           <CardDescription>
-            You are applying for the project: {project?.title}
+            You are applying for the project: <span 
+              className={`font-semibold ${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-600" : "text-teal-600"}`}
+            >
+              {project?.title}
+            </span>
+
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium mb-2">Project Details</h3>
+            <div className= {`${project?.closed ? "border-blue-300" : isOutdated? "border-yellow-300" : "border-teal-300" } border rounded-lg p-4`}>
+              <h3 className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-700" : "text-teal-700"} font-medium mb-2`}>Project Details</h3>
               <p className="text-sm text-muted-foreground mb-2">
                 {project?.description}
               </p>
               <div className="text-sm">
                 <p>
-                  <strong>Professor:</strong> {project?.professorName}
+                  <strong className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-700" : "text-teal-700"}`}>Professor:</strong> {project?.professorName}
                 </p>
                 <p>
-                  <strong>Department:</strong> {project?.professor?.department}
+                  <strong className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-700" : "text-teal-700"}`}>Department:</strong> {project?.department}
                 </p>
               </div>
             </div>
@@ -176,10 +204,11 @@ export default function ApplyPage() {
                 <Button
                   variant="outline"
                   onClick={() => router.push("/project")}
+                  className="bg-red-300 text-red-700 hover:text-white hover:bg-red-600"
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleEnrollment}>Apply for Project</Button>
+                <Button onClick={handleEnrollment} className={`${project?.closed ? "bg-blue-300 text-blue-700 hover:text-white hover:bg-blue-600" : isOutdated? "bg-yellow-300 text-yellow-700 hover:text-white hover:bg-yellow-600" : "bg-teal-300 text-teal-700 hover:text-white hover:bg-teal-600"}`}>Apply for Project</Button>
               </div>
             </div>
           </div>

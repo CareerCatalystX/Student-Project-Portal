@@ -41,12 +41,6 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
               IIT Jammu Project Portal
             </p>
           </div>
-
-          <nav className="items-center space-x-6 text-sm font-medium hidden lg:flex ml-6 text-teal-700 ">
-            <Link href="/student/applications" className="transition-colors hover:text-teal-800">
-              Applications
-            </Link>
-          </nav>
         </div>
 
         <div className="flex items-center space-x-4">
