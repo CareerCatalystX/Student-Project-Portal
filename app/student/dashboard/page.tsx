@@ -66,7 +66,7 @@ export default function DashboardPage() {
             user={profile} 
           />
           <ApplicationsList 
-            className="col-span-2 lg:col-span-4 bg-gradient-to-t from-teal-500 to-teal-600" 
+            className="col-span-2 h-fit lg:col-span-4 bg-gradient-to-t from-teal-500 to-teal-600" 
             applications={profile?.applications} 
           />
         </div>

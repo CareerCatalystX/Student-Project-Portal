@@ -30,3 +30,9 @@ export const professorSignupSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   department: z.string().min(2, 'Department is required'),
 });
+
+export const cvSchema = z.object({
+  cvUrl: z.string().url().refine((cvUrl) => drivePattern.test(cvUrl), {
+    message: "Invalid Google Drive link. Please use the format 'https://drive.google.com/...'"
+  }),
+})
