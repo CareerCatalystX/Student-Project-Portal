@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { sendApplicationStatusEmail } from '@/lib/email';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key'; // Replace with a secure environment variable in production
 // Middleware to authenticate professor
@@ -48,8 +49,16 @@ export async function PATCH(req: NextRequest, {params}: { params: Promise<{ id: 
                 project: {
                     select: {
                         professorId: true,
+                        title: true,
+                        professorName: true
                     },
                 },
+                student: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
             },
         });
 
@@ -68,6 +77,13 @@ export async function PATCH(req: NextRequest, {params}: { params: Promise<{ id: 
                 status,
             },
         });
+
+
+        const studentEmail = application.student.email;
+        const studentName = application.student.name;
+        const projectName = application.project.title
+        const profName = application.project.professorName
+        await sendApplicationStatusEmail(studentEmail, studentName,projectName,profName, status);
 
         return NextResponse.json({ message: 'Application status updated successfully', application: updatedApplication }, { status: 200 });
     } catch (error: any) {

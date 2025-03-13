@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         const professor = await authenticateProfessor(req);
 
         const body = await req.json();
-        const { title, description, duration, stipend, deadline, features, department } = body;
+        const { title, description, duration, stipend, deadline, features, department, milestones, numberOfStudentsNeeded, preferredStudentDepartments, certification, letterOfRecommendation } = body;
 
         // Validate required fields
         if (!title || !description || !duration || !deadline || !features || !department) {
@@ -51,6 +51,11 @@ export async function POST(req: NextRequest) {
                 department,
                 professorId: professor.professorId,
                 professorName: professor.professorName,
+                milestones,
+                numberOfStudentsNeeded,
+                preferredStudentDepartments,
+                certification,
+                letterOfRecommendation,
             },
         });
 

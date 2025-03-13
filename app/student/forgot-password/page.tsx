@@ -17,7 +17,10 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z
+        .string()
+        .email("Invalid email address")
+        .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
 });
 
 export default function ForgotPasswordPage() {

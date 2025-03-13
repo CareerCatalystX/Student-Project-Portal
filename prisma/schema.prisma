@@ -55,6 +55,11 @@ model Project {
   professorName String
   department   String
   applications Application[]
+  milestones   String[]
+  numberOfStudentsNeeded      Int
+  preferredStudentDepartments String[]
+  certification               Boolean
+  letterOfRecommendation      Boolean
 }
 
 model Application {

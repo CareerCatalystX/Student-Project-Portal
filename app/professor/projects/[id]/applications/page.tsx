@@ -81,6 +81,7 @@ export default function ApplicationsPage() {
         const data = await fetchApplications(projectId);
         setApplications(data.applications);
       } catch (error) {
+        router.push("/professor/dashboard")
         console.error('Error fetching applications:', error);
       } finally {
         setLoading(false);

@@ -94,6 +94,7 @@ export default function ApplyPage() {
       } catch (err: any) {
         console.error("Error fetching project:", err);
         setError(err.message || "Failed to load project details. Please try again later.");
+        router.push("student/dashboard")
       } finally {
         setLoading(false);
       }

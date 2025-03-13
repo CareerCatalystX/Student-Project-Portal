@@ -30,8 +30,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 const formSchema = z.object({
   email: z
     .string()
-    .email("Invalid email address")
-    .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
+    .email("Invalid email address"),
+    // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 

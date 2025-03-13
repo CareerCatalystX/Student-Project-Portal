@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       where: { email },
       data: {
         otp,
-        otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP valid for 10 minutes
+        otpExpiresAt: new Date(Date.now() + 60 * 1000), // OTP valid for 1 minutes
       },
     });
 

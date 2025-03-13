@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -124,6 +124,7 @@ function ProjectForm({ id }: { id: string }) {
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
+        router.push("/professor/login")
         throw new Error("Authentication token not found");
       }
 
@@ -148,6 +149,7 @@ function ProjectForm({ id }: { id: string }) {
 
       router.push(`/professor/projects/${id}`);
     } catch (err: any) {
+      router.push("/professor/dashboard")
       setError(err.message);
     } finally {
       setIsSubmitting(false);

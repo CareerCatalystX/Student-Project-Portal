@@ -27,6 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const formSchema = z.object({
   otp: z.string().length(6, "OTP must be exactly 6 digits"),
@@ -35,6 +36,7 @@ const formSchema = z.object({
 function VerifyOTPForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [countdown, setCountdown] = useState(60)
+  const [err, setErr] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
@@ -63,14 +65,17 @@ function VerifyOTPForm() {
         body: JSON.stringify({ email, otp: values.otp }),
       })
 
-      if (!response.ok) {
-        throw new Error("Verification failed")
+      if (response.ok) {
+        const data = await response.json()
+        const token = data.token
+        localStorage.setItem("authToken", token)
+        router.push("/student/dashboard")
+      }else{
+        const data = await response.json()
+        setErr(data.error)
       }
 
-      const data = await response.json()
-      const token = data.token
-      localStorage.setItem("authToken", token)
-      router.push("/student/dashboard")
+      
     } catch (error) {
       console.error("Verification error:", error)
     } finally {
@@ -123,6 +128,11 @@ function VerifyOTPForm() {
             </FormItem>
           )}
         />
+        {err && (
+                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
+                  <AlertDescription>{err}</AlertDescription>
+                </Alert>
+              )}
         <Button
                         type="submit"
                         className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"

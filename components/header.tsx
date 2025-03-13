@@ -29,7 +29,7 @@ export default function Header() {
           </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-6">
+        {/* <nav className="hidden md:flex gap-6">
           <Button
             variant="outline"
             onClick={() => router.push("/student/dashboard")}
@@ -43,6 +43,23 @@ export default function Header() {
           >
             Professor Dashboard
           </Button>
+        </nav> */}
+        <nav className="hidden md:flex md:flex-row gap-6">
+            <p>
+              Home
+            </p>
+            <p>
+              Features
+            </p>
+            <p>
+              Pricing
+            </p>
+            <p>
+              About
+            </p>
+            <p>
+              Contact Us
+            </p>
         </nav>
 
         {/* Mobile Navigation */}

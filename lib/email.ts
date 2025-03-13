@@ -29,3 +29,39 @@ export async function sendEmail(email: string, title: string, message: string) {
 
   await transporter.sendMail(mailOptions);
 } 
+
+
+export async function sendApplicationStatusEmail(
+  studentEmail: string,
+  studentName: string,
+  projectName: string,
+  professorName: string,
+  status: 'accepted' | 'rejected'
+) {
+  const statusMessage =
+    status === 'accepted'
+      ? 'Congratulations! Your application has been accepted.'
+      : 'Unfortunately, your application has been rejected.';
+
+  const htmlMessage = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+      <h2 style="color: #4CAF50;">${status === 'accepted' ? 'Application Accepted' : 'Application Rejected'}</h2>
+      <p>Dear ${studentName},</p>
+      <p>${statusMessage}</p>
+      <p><strong>Project Name:</strong> ${projectName}</p>
+      <p><strong>Professor Name:</strong> ${professorName}</p>
+      <p>We wish you the best in your endeavors!</p>
+      <p>Best regards,</p>
+      <p><strong>${professorName}</strong></p>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: studentEmail,
+    subject: `Your Application for ${projectName} has been ${status}`,
+    html: htmlMessage,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
