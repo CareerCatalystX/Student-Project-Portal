@@ -9,32 +9,40 @@ export default function Header() {
   const router = useRouter();
 
   return (
-    <header className="border-b border-blue-100 bg-white shadow-sm shadow-blue-200 w-full z-50">
+    <header className="backdrop-blur-xl border-b border-blue-100 shadow-[10px_0_15px_rgba(37,99,235,0.6),20px_0_20px_rgba(128,0,128,0.5),30px_0_25px_rgba(37,99,235,0.4)] w-full z-50">
       <div className="flex h-16 items-center justify-between w-full px-6">
         {/* Logo or Title */}
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-blue-700">
-            Projects Karo
-          </h1>
-          <p className="text-xs text-muted-foreground text-blue-500">
-            Match. Collaborate. Build.
-          </p>
-        </div>
-
-        {/* Desktop Navigation (Visible only on MD+) */}
-        <nav className="hidden md:flex md:flex-row gap-4">
-          {["Home", "Features", "Pricing", "About", "Contact Us"].map(
-            (item) => (
-              <p
-                key={item}
-                className="hover:underline hover:cursor-pointer font-light px-2 py-1"
-                onClick={() => router.push(item === "Home" ? "/" : `/${item.toLowerCase()}`)}
-              >
-                {item}
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-8">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
+                Projects Karo
+              </h1>
+              <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent">
+                Match. Collaborate. Build.
               </p>
-            )
-          )}
-        </nav>
+            </div>
+
+            {/* Desktop Navigation (Visible only on MD+) */}
+            <nav className="hidden md:flex md:flex-row gap-4">
+              {["Home", "Features", "Pricing", "About", "Contact Us"].map(
+                (item) => (
+                  <p
+                    key={item}
+                    className="hover:cursor-pointer font-light px-2 py-1 bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent"
+                    onClick={() => router.push(item === "Home" ? "/" : `/${item.toLowerCase()}`)}
+                  >
+                    {item}
+                  </p>
+                )
+              )}
+            </nav>
+          </div>
+          <div className="hidden md:flex">
+            <Button variant="ghost" className="bg-gradient-to-r from-blue-950 via-blue-700 to-blue-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => {router.push("/login")}}>Log in</Button>
+            <Button variant="default" className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-700 hover:bg-gradient-to-r hover:from-blue-500 hover:via-blue-700 hover:to-blue-500" onClick={() => {router.push("/signup")}}>Sign up</Button>
+          </div>
+        </div>
 
         {/* Mobile Sidebar Trigger */}
         <div className="md:hidden">
@@ -43,7 +51,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-white transition-all duration-200 w-4 h-16 flex items-center justify-center"
+              className="rounded-full transition-all duration-200 w-4 h-16 flex items-center justify-center"
               aria-label="Open Menu"
             >
               <Menu className="text-blue-700" style={{ width: "24px", height: "24px" }} />

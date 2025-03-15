@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 import "./globals.css";
-import { AppSidebar } from "@/components/app-sidebar";
 
 // Font setup
 const poppinsFont = Poppins({
@@ -26,13 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppinsFont.className} antialiased`}>
-        <SidebarProvider>
-          {/* Show Sidebar only on mobile */}
-          <div className="md:hidden">
-            <AppSidebar />
-          </div>
           {children}
-        </SidebarProvider>
       </body>
     </html>
   );
