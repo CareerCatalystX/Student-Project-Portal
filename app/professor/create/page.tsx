@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Check, ChevronDown } from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -19,10 +19,22 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Switch } from "@/components/ui/switch"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Checkbox } from "@/components/ui/checkbox"
+
+const DEPARTMENTS = [
+  "Computer Science",
+  "Electrical",
+  "Mechanical",
+  "Civil",
+  "Chemical",
+  "Material",
+  "Mathematics and Computing"
+]
 
 const projectFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -44,6 +56,13 @@ const projectFormSchema = z.object({
   deadline: z.string().min(1, "Deadline is required"),
   features: z.array(z.string()).min(1, "At least one feature is required"),
   department: z.string().min(1, "Department is required"),
+  milestones: z.array(z.string().min(1, "Milestones is required")),
+  numberOfStudentsNeeded: z.number().min(1, "At least one student is required"),
+  preferredStudentDepartments: z
+    .array(z.string())
+    .min(1, "Select at least one preferred department"),
+  certification: z.boolean(),
+  letterOfRecommendation: z.boolean(),
 })
 
 type ProjectFormData = z.infer<typeof projectFormSchema>
@@ -52,7 +71,10 @@ export default function NewProjectPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [featureInput, setFeatureInput] = useState("")
+  const [milestoneInput, setMilestoneInput] = useState("")
   const [error, setError] = useState<string | null>(null)
+
+  
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
@@ -64,6 +86,11 @@ export default function NewProjectPage() {
       deadline: "",
       features: [],
       department: "",
+      milestones: [],
+      numberOfStudentsNeeded: 1,
+      preferredStudentDepartments: [],
+      certification: false,
+      letterOfRecommendation: false,
     },
   })
 
@@ -84,6 +111,22 @@ export default function NewProjectPage() {
     )
   }
 
+  const milestones = watch("milestones")
+
+  const addMilestone = () => {
+    if (milestoneInput.trim() && !milestones.includes(milestoneInput.trim())) {
+      setValue("milestones", [...milestones, milestoneInput.trim()])
+      setMilestoneInput("")
+    }
+  }
+
+  const removeMilestone = (milestone: string) => {
+    setValue(
+      "milestones",
+      milestones.filter((m) => m !== milestone),
+    )
+  }
+
   async function onSubmit(data: ProjectFormData) {
     setIsSubmitting(true)
     setError(null)
@@ -91,6 +134,7 @@ export default function NewProjectPage() {
     try {
       const token = localStorage.getItem("authToken")
       if (!token) {
+        router.push("/professor/login")
         throw new Error("Authentication token not found")
       }
 
@@ -116,6 +160,7 @@ export default function NewProjectPage() {
 
       router.push("/professor/dashboard")
     } catch (err: any) {
+      router.push("/professor/dashboard")
       setError(err.message)
     } finally {
       setIsSubmitting(false)
@@ -292,56 +337,100 @@ export default function NewProjectPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="features"
-                render={() => (
-                  <FormItem>
-                    <FormLabel className="text-blue-600">Features</FormLabel>
-                    <FormDescription className="text-blue-600/80">
-                      Add key features or requirements for your project
-                    </FormDescription>
-                    <div className="flex gap-2">
-                      <Input
-                        value={featureInput} 
-                        className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50 pr-10"
-                        onChange={(e) => setFeatureInput(e.target.value)}
-                        placeholder="Enter a feature"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault()
-                            addFeature()
-                          }
-                        }}
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={addFeature} 
-                        className="bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
+<FormField
+      control={form.control}
+      name="preferredStudentDepartments"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-blue-600">Preferred Student Departments</FormLabel>
+          <FormDescription className="text-blue-600/80">
+            Select departments that students should be from.
+          </FormDescription>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between border-blue-200 bg-blue-50/50 hover:bg-blue-100"
+                >
+                  {field.value?.length
+                    ? `${field.value.length} department${field.value.length > 1 ? "s" : ""} selected`
+                    : "Select departments"}
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+
+            <PopoverContent align="start" className="w-full p-2 bg-white border border-blue-200 rounded-md shadow-md">
+              <div className="max-h-60 overflow-y-auto space-y-2">
+                {DEPARTMENTS.map((department) => {
+                  const isSelected = field.value?.includes(department)
+
+                  return (
+                    <div
+                      key={department}
+                      onClick={() => {
+                        const currentValue = field.value || []
+                        field.onChange(
+                          isSelected
+                            ? currentValue.filter((d) => d !== department)
+                            : [...currentValue, department]
+                        )
+                      }}
+                      className="flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 cursor-pointer"
+                    >
+                      <Checkbox checked={isSelected} className="text-blue-600 border-blue-300" />
+                      <span className="text-gray-700">{department}</span>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {features.map((feature, index) => (
-                        <Badge key={index} variant="secondary" className="bg-blue-100 hover:bg-blue-200">
-                          {feature}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="ml-2 h-4 w-4 p-0 hover:bg-transparent"
-                            onClick={() => removeFeature(feature)}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </Badge>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  )
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="certification"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-blue-200 p-3 shadow-sm bg-blue-50/50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-blue-600">Certification</FormLabel>
+                        <FormDescription className="text-blue-600/80">
+                          Provide certification upon completion
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="letterOfRecommendation"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-blue-200 p-3 shadow-sm bg-blue-50/50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-blue-600">Letter of Recommendation</FormLabel>
+                        <FormDescription className="text-blue-600/80">Provide LOR upon completion</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
 
               {error && (
                 <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">

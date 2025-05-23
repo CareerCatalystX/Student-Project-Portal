@@ -1,30 +1,28 @@
-// /app/api/auth/reset-password/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { sendEmail } from '@/lib/email';
+import { resetPassword } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, role } = await req.json();
+        const body = await req.json();
 
-        if (!email || !role) {
+        const result = resetPassword.safeParse(body);
+            if (!result.success) {
+              const errorMessage = result.error.issues[0].message;
+              return NextResponse.json({ error: errorMessage }, { status: 400 });
+            }
+            const { email } = body;
+
+        if (!email) {
             return NextResponse.json({ message: 'Email and role are required' }, { status: 400 });
         }
 
         // Determine the model and narrow the type
-        let user: any;
-        if (role === 'professor') {
-            user = await prisma.professor.findUnique({
-                where: { email },
-            });
-        } else if (role === 'student') {
-            user = await prisma.student.findUnique({
-                where: { email },
-            });
-        } else {
-            return NextResponse.json({ message: 'Invalid role provided' }, { status: 400 });
-        }
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
 
         if (!user) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
@@ -35,29 +33,23 @@ export async function POST(req: NextRequest) {
         const resetTokenExpiresAt = new Date(Date.now() + 3600 * 1000); // 1 hour from now
 
         // Update the user with the reset token and expiration
-        if (role === 'professor') {
-            await prisma.professor.update({
-                where: { email },
-                data: {
-                    resetToken,
-                    resetTokenExpiresAt,
-                },
-            });
-        } else {
-            await prisma.student.update({
-                where: { email },
-                data: {
-                    resetToken,
-                    resetTokenExpiresAt,
-                },
-            });
-        }
+        await prisma.user.update({
+            where: { email },
+            data: {
+                auth: {
+                    update: {
+                        resetToken,
+                        resetTokenExpiresAt,
+                    }
+                }
+            },
+        });
 
         // Get the base URL from environment variables or use localhost as a fallback
-        const baseUrl = process.env.BASEd_URL || 'http://localhost:3000';
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
 
         // Generate the reset URL
-        const resetUrl = `${baseUrl}/update-password?token=${resetToken}&role=${role}`;
+        const resetUrl = `${baseUrl}/update-password?token=${resetToken}`;
 
         // Send reset email
         await sendEmail(

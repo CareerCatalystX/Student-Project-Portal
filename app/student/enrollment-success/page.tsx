@@ -30,7 +30,7 @@ export default function EnrollmentSuccessPage() {
       <Card className="max-w-2xl w-full">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <CheckCircle className="h-16 w-16 text-green-500" />
+            <CheckCircle className="h-16 w-16 text-teal-600" />
           </div>
           <CardTitle className="text-2xl">Enrollment Successful!</CardTitle>
         </CardHeader>
