@@ -2,26 +2,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key'; // Replace with a secure environment variable in production
-// Middleware to authenticate student
+const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+
 async function authenticateStudent(req: NextRequest) {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-        throw new Error('Authorization token is required');
-    }
-
-    const token = authHeader.split(' ')[1];
+    const cookieStore = await cookies();
+    const token = cookieStore.get('studentToken')?.value;
     if (!token) {
-        throw new Error('Invalid authorization header format');
+        throw new Error('Authentication token is missing');
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-        if (decoded.role !== 'student') {
+        const decoded = jwt.verify(token, JWT_SECRET) as {
+            id: string;
+            role: string;
+            name: string;
+            collegeId: string;
+            studentId: string;
+        };
+
+        if (decoded.role !== 'STUDENT') {
             throw new Error('Access forbidden: Students only');
         }
-        return { studentId: decoded.id };
+
+        return { id: decoded.id };
     } catch (error) {
         throw new Error('Invalid or expired token');
     }
@@ -40,16 +45,6 @@ export async function GET(req: NextRequest, {params}: { params: Promise<{ id: st
         // Fetch all projects created by the professor
         const projects = await prisma.project.findMany({
             where: { professorId },
-            select: {
-                id: true,
-                title: true,
-                description: true,
-                duration: true,
-                stipend: true,
-                deadline: true,
-                features: true,
-                department: true,
-            },
         });
 
         if (projects.length === 0) {

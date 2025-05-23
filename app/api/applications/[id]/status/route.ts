@@ -3,26 +3,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import { sendApplicationStatusEmail } from '@/lib/email';
+import { cookies } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key'; // Replace with a secure environment variable in production
 // Middleware to authenticate professor
 async function authenticateProfessor(req: NextRequest) {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-        throw new Error('Authorization token is required');
-    }
-
-    const token = authHeader.split(' ')[1];
+    const cookieStore = await cookies();
+    const token = cookieStore.get('professorToken')?.value;
     if (!token) {
-        throw new Error('Invalid authorization header format');
+        throw new Error('Authentication token is missing');
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-        if (decoded.role !== 'professor') {
-            throw new Error('Access forbidden: Professors only');
+        const decoded = jwt.verify(token, JWT_SECRET) as {
+            id: string;
+            role: string;
+            name: string;
+            collegeId: string;
+            professorId: string;
+        };
+        if (decoded.role !== 'PROFESSOR') {
+            throw new Error('Access forbidden: Professor only');
         }
-        return { professorId: decoded.id };
+        return {
+            professorId: decoded.professorId,
+            collegeId: decoded.collegeId,
+            userId: decoded.id
+        };
     } catch (error) {
         throw new Error('Invalid or expired token');
     }
@@ -55,9 +62,13 @@ export async function PATCH(req: NextRequest, {params}: { params: Promise<{ id: 
                 },
                 student: {
                     select: {
-                        name: true,
-                        email: true
-                    }
+                        user: {
+                        select: {
+                            name: true,
+                            email: true,
+                        },
+                        },
+                    },
                 }
             },
         });
@@ -79,8 +90,8 @@ export async function PATCH(req: NextRequest, {params}: { params: Promise<{ id: 
         });
 
 
-        const studentEmail = application.student.email;
-        const studentName = application.student.name;
+        const studentEmail = application.student.user.email;
+        const studentName = application.student.user.name;
         const projectName = application.project.title
         const profName = application.project.professorName
         await sendApplicationStatusEmail(studentEmail, studentName,projectName,profName, status);

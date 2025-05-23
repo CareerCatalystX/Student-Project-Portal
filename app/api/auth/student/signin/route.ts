@@ -2,25 +2,43 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { sendOTP } from '@/lib/email';
+import { studentSigninSchema } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
-
-    // Find student by email
-    const student = await prisma.student.findUnique({
-      where: { email },
+    const body = await req.json();
+    const result = studentSigninSchema.safeParse(body);
+    if (!result.success) {
+      const errorMessage = result.error.issues[0].message;
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
+    const { email, password } = body;
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email, role: "STUDENT" },
+      include: {
+        auth: true,
+        studentProfile: true
+      }
     });
 
-    if (!student) {
+    if (!user || !user.auth) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 400 }
       );
     }
 
+    // Check if user is a student
+    if (user.role !== 'STUDENT' || !user.studentProfile) {
+      return NextResponse.json(
+        { error: 'Account is not a student account' },
+        { status: 400 }
+      );
+    }
+
     // Validate password
-    const isPasswordValid = await bcrypt.compare(password, student.password);
+    const isPasswordValid = await bcrypt.compare(password, user.auth.password);
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
@@ -30,17 +48,18 @@ export async function POST(req: Request) {
 
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // OTP valid for 1 hour
 
     // Update the OTP and expiration in the database
-    await prisma.student.update({
-      where: { email },
+    await prisma.userAuth.update({
+      where: { userId: user.id },
       data: {
         otp,
-        otpExpiresAt: new Date(Date.now() + 60 * 1000), // OTP valid for 1 minutes
+        otpExpiresAt
       },
     });
 
-    // Send the OTP to the student's email
+    // Send the OTP to the user's email
     await sendOTP(email, otp);
 
     return NextResponse.json({

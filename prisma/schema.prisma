@@ -7,73 +7,197 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Professor {
+// User model
+model User {
   id            String   @id @default(uuid())
   name          String
-  department    String
   email         String   @unique
-  password      String
-  otp           String?
-  otpExpiresAt  DateTime?
+  role          UserRole @default(STUDENT)
+  collegeId     String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  resetToken    String?  // Token for password reset
-  resetTokenExpiresAt DateTime? // Expiration for reset token
-  projects      Project[] @relation("ProfessorProjects")
+  auth          UserAuth?
+  studentProfile Student?
+  professorProfile Professor?
+  subscriptions  Subscription[]
+  college        College @relation(fields: [collegeId], references: [id])
 }
 
+// Authentication information
+model UserAuth {
+  id                 String    @id @default(uuid())
+  userId             String    @unique
+  password           String
+  otp                String?
+  otpExpiresAt       DateTime?
+  resetToken         String?  
+  resetTokenExpiresAt DateTime?
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
+enum UserRole {
+  STUDENT
+  PROFESSOR
+  ADMIN
+}
+
+// College model
+model College {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  domain      String    @unique  // e.g., iitj.ac.in
+  logo        String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  students    User[]
+  projects    Project[]
+  plans          Plan[]
+}
+
+// Student profile
 model Student {
-  id         String    @id @default(uuid())
-  name       String
-  email      String    @unique
-  password   String  
-  otp         String?
-  otpExpiresAt DateTime?  
-  college    String
-  year       String
-  branch     String
-  cvUrl      String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  resetToken    String?  // Token for password reset
-  resetTokenExpiresAt DateTime? // Expiration for reset token
+  id           String          @id @default(uuid())
+  userId       String          @unique
+  year         Int?
+  branch       String
+  cvUrl        String?
+  bio          String?
+  gpa          Float?
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications Application[]
+  skills       StudentSkill[]
 }
 
+model Professor {
+  id              String      @id @default(uuid())
+  userId          String      @unique
+  department      String
+  designation     String      // e.g., Assistant Professor, Associate Professor, Professor
+  qualification   String?     // e.g., PhD in Computer Science
+  researchAreas   String[]    // Array of research interests/areas
+  officeLocation  String?
+  officeHours     String?
+  bio             String?
+  publications    String?     // Could be a link to publications or a JSON array stored as text
+  websiteUrl      String?
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects        Project[]   // Projects created by this professor
+}
+
+// Projects created by colleges
 model Project {
-  id           String    @id @default(uuid())
-  title        String
-  description  String
-  duration     String
-  stipend      Float?
-  deadline     String
-  features     String[]
-  closed Boolean @default(false)
-  professorId  String
-  professor    Professor @relation("ProfessorProjects", fields: [professorId], references: [id])
-  professorName String
-  department   String
-  applications Application[]
-  milestones   String[]
-  numberOfStudentsNeeded      Int
+  id                        String        @id @default(uuid())
+  title                     String
+  description               String
+  duration                  String
+  stipend                   Float?
+  deadline                  DateTime
+  closed                    Boolean       @default(false) //TODO: route to close it
+  professorId               String        //from cookie
+  professorName             String        //extracted from prof table
+  department                String
+  collegeId                 String        // cookie
+  categoryId                String?       // extracted from category name
+  numberOfStudentsNeeded    Int
   preferredStudentDepartments String[]
-  certification               Boolean
-  letterOfRecommendation      Boolean
+  certification             Boolean       @default(false)
+  letterOfRecommendation    Boolean       @default(false)
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  college                   College       @relation(fields: [collegeId], references: [id])
+  professor                 Professor     @relation(fields: [professorId], references: [id])
+  applications              Application[]
+  skills                    ProjectSkill[]
+  catego0ry                  ProjectCategory? @relation(fields: [categoryId], references: [id])
 }
 
+// Project categories
+model ProjectCategory {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  projects    Project[]
+}
+
+// Skills
+model Skill {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  projects    ProjectSkill[]
+  students    StudentSkill[]
+}
+
+model ProjectSkill {
+  projectId   String
+  skillId     String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill       Skill          @relation(fields: [skillId], references: [id])
+
+  @@id([projectId, skillId])
+}
+
+model StudentSkill {
+  studentId   String
+  skillId     String
+  student     Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skill       Skill          @relation(fields: [skillId], references: [id])
+
+  @@id([studentId, skillId])
+}
+
+// Application for students to apply to projects
 model Application {
-  id         String    @id @default(uuid())
-  projectId  String
-  studentId  String
-  status     ApplicationStatus @default(pending)
-  appliedAt  String
-  project    Project @relation(fields: [projectId], references: [id])
-  student    Student @relation(fields: [studentId], references: [id])
+  id             String            @id @default(uuid())
+  projectId      String
+  studentId      String
+  status         ApplicationStatus @default(PENDING)
+  appliedAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  coverLetter    String?
+  professorNotes String?
+  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  student        Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 enum ApplicationStatus {
-  pending
-  accepted
-  rejected
+  PENDING
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+}
+
+// Subscription model to access other colleges' projects
+model Subscription {
+  id         String              @id @default(uuid())
+  userId     String
+  planId     String
+  status     SubscriptionStatus  @default(ACTIVE)
+  startedAt  DateTime            @default(now())
+  endsAt     DateTime
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan       Plan                @relation(fields: [planId], references: [id])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+model Plan {
+  id           String         @id @default(uuid())
+  name         String         @unique
+  price        Float
+  billingCycle PlanCycle      @default(FREE)  
+  features     String[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  subscriptions Subscription[]
+  accessibleColleges College[]
+}
+
+enum PlanCycle {
+  MONTHLY
+  YEARLY
+  FREE
 }

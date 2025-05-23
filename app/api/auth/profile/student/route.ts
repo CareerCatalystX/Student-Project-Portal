@@ -1,49 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
 async function authenticateStudent(req: NextRequest) {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-        throw new Error('Authorization token is required');
-    }
-
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-        throw new Error('Invalid authorization header format');
-    }
-
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-        if (decoded.role !== 'student') {
-            throw new Error('Unauthorized: Not a student');
+    const cookieStore = await cookies();
+        const token = cookieStore.get('studentToken')?.value;
+        if(!token){
+            throw new Error('Authentication token is missing');
         }
-        return { id: decoded.id };
-    } catch (error) {
-        throw new Error('Invalid or expired token');
-    }
+    
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET) as {
+              id: string;
+              role: string;
+              name: string;
+              collegeId: string;
+              studentId: string;
+            };
+        
+            if (decoded.role !== 'STUDENT') {
+              throw new Error('Access forbidden: Students only');
+            }
+        
+            return { studentId: decoded.studentId };
+          } catch (error) {
+            throw new Error('Invalid or expired token');
+          }
 }
 
 export async function GET(req: NextRequest) {
     try {
-        const { id } = await authenticateStudent(req);
+        const { studentId } = await authenticateStudent(req);
         const student = await prisma.student.findUnique({
-            where: { id },
+            where: { id : studentId },
             include: {
                 applications: {
                     select: {
                         id: true,
                         projectId: true,
                         status: true,
+                        appliedAt: true,
                         project: {
                             select: {
+                              id: true,
                               title: true,
+                              deadline: true
                             },
                           },
                     },
                 },
+                skills: {
+                    select: {
+                        skill: true
+                    }
+                }
             },
         });
 

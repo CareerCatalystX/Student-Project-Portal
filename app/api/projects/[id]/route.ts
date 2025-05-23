@@ -13,13 +13,7 @@ export async function GET( _: any, {params}: { params: Promise<{ id: string }> }
         const project = await prisma.project.findUnique({
             where: { id },
             include: {
-                professor: {
-                    select: {
-                        name: true,
-                        department: true,
-                        email: true,
-                    },
-                },
+                professor: true
             },
         });
 
