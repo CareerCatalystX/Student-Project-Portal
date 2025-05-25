@@ -5,13 +5,14 @@ import "./globals.css";
 
 // Font setup
 const poppinsFont = Poppins({
-  weight: ["400"],
+  weight: ["400", "500", "600", "700"], // normal, medium, semibold, bold
   subsets: ["latin"],
+  variable: "--font-poppins",
 });
 
 // Metadata setup
 export const metadata: Metadata = {
-  title: "Projects Karo",
+  title: "Career CatalystX",
   description: "Jigyasu",
 };
 
@@ -22,10 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${poppinsFont.className} antialiased`}>
-          {children}
-      </body>
+    <html suppressHydrationWarning lang="en" className={poppinsFont.variable}>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }

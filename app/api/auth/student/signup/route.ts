@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     if (existingStudent) {
       return NextResponse.json(
         { error: 'Email already exists' },
-        { status: 400 }
+        { status: 409 }
       );
     }
 

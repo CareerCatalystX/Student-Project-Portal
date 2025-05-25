@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     // Update the OTP and expiration in the database
     await prisma.userAuth.update({

@@ -41,40 +41,89 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Force light mode colors */
+    color-scheme: light;
   }
+
+  /* Override dark mode with higher specificity */
+  html.dark :root,
+  html[data-theme="dark"] :root,
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 0 0% 100% !important;
+    --foreground: 240 10% 3.9% !important;
+    --card: 0 0% 100% !important;
+    --card-foreground: 240 10% 3.9% !important;
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 240 10% 3.9% !important;
+    --primary: 240 5.9% 10% !important;
+    --primary-foreground: 0 0% 98% !important;
+    --secondary: 240 4.8% 95.9% !important;
+    --secondary-foreground: 240 5.9% 10% !important;
+    --muted: 240 4.8% 95.9% !important;
+    --muted-foreground: 240 3.8% 46.1% !important;
+    --accent: 240 4.8% 95.9% !important;
+    --accent-foreground: 240 5.9% 10% !important;
+    --destructive: 0 84.2% 60.2% !important;
+    --destructive-foreground: 0 0% 98% !important;
+    --border: 240 5.9% 90% !important;
+    --input: 240 5.9% 90% !important;
+    --ring: 240 10% 3.9% !important;
+    --sidebar-background: 0 0% 98% !important;
+    --sidebar-foreground: 240 5.3% 26.1% !important;
+    --sidebar-primary: 240 5.9% 10% !important;
+    --sidebar-primary-foreground: 0 0% 98% !important;
+    --sidebar-accent: 240 4.8% 95.9% !important;
+    --sidebar-accent-foreground: 240 5.9% 10% !important;
+    --sidebar-border: 220 13% 91% !important;
+    --sidebar-ring: 217.2 91.2% 59.8% !important;
+    color-scheme: light !important;
+  }
+
+  /* Override system dark mode preference */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 0 0% 100% !important;
+      --foreground: 240 10% 3.9% !important;
+      --card: 0 0% 100% !important;
+      --card-foreground: 240 10% 3.9% !important;
+      --popover: 0 0% 100% !important;
+      --popover-foreground: 240 10% 3.9% !important;
+      --primary: 240 5.9% 10% !important;
+      --primary-foreground: 0 0% 98% !important;
+      --secondary: 240 4.8% 95.9% !important;
+      --secondary-foreground: 240 5.9% 10% !important;
+      --muted: 240 4.8% 95.9% !important;
+      --muted-foreground: 240 3.8% 46.1% !important;
+      --accent: 240 4.8% 95.9% !important;
+      --accent-foreground: 240 5.9% 10% !important;
+      --destructive: 0 84.2% 60.2% !important;
+      --destructive-foreground: 0 0% 98% !important;
+      --border: 240 5.9% 90% !important;
+      --input: 240 5.9% 90% !important;
+      --ring: 240 10% 3.9% !important;
+      --sidebar-background: 0 0% 98% !important;
+      --sidebar-foreground: 240 5.3% 26.1% !important;
+      --sidebar-primary: 240 5.9% 10% !important;
+      --sidebar-primary-foreground: 0 0% 98% !important;
+      --sidebar-accent: 240 4.8% 95.9% !important;
+      --sidebar-accent-foreground: 240 5.9% 10% !important;
+      --sidebar-border: 220 13% 91% !important;
+      --sidebar-ring: 217.2 91.2% 59.8% !important;
+      color-scheme: light !important;
+    }
+    
+    html, body {
+      background-color: white !important;
+      color: hsl(240 10% 3.9%) !important;
+    }
+  }
+
+  /* Additional override for system dark mode preference */
+  html,
+  html.dark,
+  html[data-theme="dark"] {
+    color-scheme: light !important;
   }
 }
 
@@ -84,5 +133,8 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    /* Ensure white background even in dark mode */
+    background-color: white !important;
+    color: hsl(240 10% 3.9%) !important;
   }
 }

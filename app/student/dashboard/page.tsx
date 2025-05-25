@@ -23,9 +23,7 @@ export default function DashboardPage() {
       try {
         const response = await fetch("/api/auth/profile/student", {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         })
 
         if (!response.ok) {
@@ -34,6 +32,7 @@ export default function DashboardPage() {
         }
 
         const data = await response.json()
+        console.log(data)
         setProfile(data.student)
       } catch {
         router.push("/student/login")

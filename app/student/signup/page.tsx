@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -19,13 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { toast } from "sonner"
 import {
   Card,
   CardContent,
@@ -34,15 +28,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Validation schema
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z
-      .string()
-      .email("Invalid email address"),
-      // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
+    .string()
+    .email("Invalid email address"),
+  // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
   password: z
     .string()
     .min(6, "Password must be at least 6 characters")
@@ -50,25 +43,31 @@ const formSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
       "Password must contain at least one uppercase letter, one lowercase letter, and one number"
     ),
-  college: z.string().min(2, "College name is required"),
-  year: z
-    .string()
-    .regex(/^\d{4}$/, "Year must be a valid 4-digit number (e.g., 2024)"),
-  branch: z.string().min(1, "Branch is required"),
-  cvUrl: z
-  .string()
-  .min(1, "CV link is required")
-  .regex(
-    /^https?:\/\/(?:www\.)?drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([-\w]{25,})(?:\/view|\/preview)?(?:\?.*)?$/,
-    "Invalid Google Drive link"
-  )
+  // college: z.string().min(2, "College name is required"),
+  // year: z
+  //   .string()
+  //   .regex(/^\d{4}$/, "Year must be a valid 4-digit number (e.g., 2024)"),
+  // branch: z.string().min(1, "Branch is required"),
+  // cvUrl: z
+  //   .string()
+  //   .min(1, "CV link is required")
+  //   .regex(
+  //     /^https?:\/\/(?:www\.)?drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([-\w]{25,})(?:\/view|\/preview)?(?:\?.*)?$/,
+  //     "Invalid Google Drive link"
+  //   )
 });
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -77,46 +76,48 @@ export default function SignupPage() {
       name: "",
       email: "",
       password: "",
-      college: "",
-      year: "",
-      branch: "",
-      cvUrl: "",
+      // college: "",
+      // year: "",
+      // branch: "",
+      // cvUrl: "",
     },
   });
 
   // Form submission handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
+    setIsLoading(true)
+    const signupPromise = async () => {
       const response = await fetch("/api/auth/student/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
-      if (response.ok) {
+      if (!response.ok) {
         const data = await response.json();
-        setMessage(data.message); // e.g., "OTP sent to email. Please verify."
-        router.push(`/student/verify-otp?email=${encodeURIComponent(values.email)}`); // Redirect to OTP verification page
-      } else {
-        const data = await response.json();
-        setError(data.error || "Signup failed.");
+        throw new Error(data.error || "Signup failed");
       }
-    } catch (error) {
-      console.error("Signup error:", error);
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
+      return response.json(); // return parsed response to use in toast
+    };
+
+    toast.promise(signupPromise(), {
+      loading: "Creating your account...",
+      success: (data) => {
+        setIsLoading(false);
+        router.push(`/student/verify-otp?email=${encodeURIComponent(values.email)}`);
+        return "OTP sent to your email. Please verify to continue.";
+      },
+      error: (err) => {
+        setIsLoading(false)
+        return "Signup failed: " + err.message;
+      },
+    });
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-400 to-teal-600 px-4 py-12">
-      <Card className="w-full max-w-2xl shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-      <CardHeader className="space-y-1 pb-6">
+      <Card className="w-full max-w-xl shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="space-y-1 pb-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-full bg-teal-600 text-white">
               <UserPlus className="w-5 h-5" />
@@ -205,7 +206,7 @@ export default function SignupPage() {
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="college"
                 render={({ field }) => (
@@ -250,7 +251,7 @@ export default function SignupPage() {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isLoading} 
+                      disabled={isLoading}
                     >
                       <FormControl>
                         <SelectTrigger className="border-teal-200 focus:border-teal-400 focus:ring-teal-400 bg-teal-50/50">
@@ -292,34 +293,15 @@ export default function SignupPage() {
                     <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
-              />
-
-              {error && (
-                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              {message && (
-                <Alert className="bg-green-50 text-green-600 border-green-200">
-                  <AlertDescription>{message}</AlertDescription>
-                </Alert>
-              )}
+              /> */}
 
               <Button
-                              type="submit"
-                              className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"
-                              disabled={isLoading}
-                            >
-                              {isLoading ? (
-                                <div className="flex space-x-2 justify-center items-center">
-                                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                  <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                                </div>
-                              ) : (
-                                "Create Account"
-                              )}
-                            </Button>
+                type="submit"
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
+              </Button>
             </form>
           </Form>
         </CardContent>
@@ -336,5 +318,5 @@ export default function SignupPage() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
