@@ -5,6 +5,17 @@ import Hero from "@/components/home";
 import { Typewriter } from "@/components/ui/typewriter";
 import Eight from "@/components/animata/bento-grid/eight";
 
+function TimeDisplay() {
+  const [time, setTime] = useState("");
+
+  useEffect(() => {
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setTime(currentTime);
+  }, []);
+
+  return <>{time} · Today</>;
+}
+
 function IosOgShellCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="max-w-xs md:max-w-xl md:min-w-80 mx-auto flex flex-col mt-36 md:mt-0 md:justify-center min-h-screen rounded-lg px-px pb-px shadow-inner-shadow">
@@ -13,7 +24,7 @@ function IosOgShellCard({ children }: { children: React.ReactNode }) {
           iMessage
         </div>
         <div className="mb-3 text-xs md:text-sm text-neutral-500">
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · Today
+          <TimeDisplay />
         </div>
         <div className="ml-auto px-4 py-2 text-white bg-blue-500 rounded-2xl">
           <span>Hey!</span>

@@ -14,6 +14,9 @@ const poppinsFont = Poppins({
 export const metadata: Metadata = {
   title: "Career CatalystX",
   description: "Jigyasu",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 // Root layout component

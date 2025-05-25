@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
@@ -14,13 +15,16 @@ export default function Header() {
         {/* Logo or Title */}
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-8">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
-                Career CatalystX
-              </h1>
-              <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent text-center">
-                Match. Collaborate. Build.
-              </p>
+            <div className="flex items-center">
+              <Image src="/logo.png" alt="Logo" width={64} height={64} />
+              <div className="pb-1">
+                <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
+                  CareerCatalystX
+                </h1>
+                <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent text-center">
+                  Match. Collaborate. Build.
+                </p>
+              </div>
             </div>
 
             {/* Desktop Navigation (Visible only on MD+) */}
@@ -39,8 +43,8 @@ export default function Header() {
             </nav>
           </div>
           <div className="hidden md:flex">
-            <Button variant="ghost" className="bg-gradient-to-r from-blue-950 via-blue-700 to-blue-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => {router.push("/login")}}>Log in</Button>
-            <Button variant="default" className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-700 hover:bg-gradient-to-r hover:from-blue-500 hover:via-blue-700 hover:to-blue-500" onClick={() => {router.push("/signup")}}>Sign up</Button>
+            <Button variant="ghost" className="bg-gradient-to-r from-blue-950 via-blue-700 to-blue-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => { router.push("/login") }}>Log in</Button>
+            <Button variant="default" className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-700 hover:bg-gradient-to-r hover:from-blue-500 hover:via-blue-700 hover:to-blue-500" onClick={() => { router.push("/signup") }}>Sign up</Button>
           </div>
         </div>
 
@@ -48,14 +52,14 @@ export default function Header() {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full transition-all duration-200 w-4 h-16 flex items-center justify-center"
-              aria-label="Open Menu"
-            >
-              <Menu className="text-blue-700" style={{ width: "24px", height: "24px" }} />
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full transition-all duration-200 w-4 h-16 flex items-center justify-center"
+                aria-label="Open Menu"
+              >
+                <Menu className="text-blue-700" style={{ width: "24px", height: "24px" }} />
+              </Button>
 
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px] shadow-md bg-white">
