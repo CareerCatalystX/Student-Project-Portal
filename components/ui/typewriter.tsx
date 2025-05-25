@@ -25,7 +25,7 @@ export function Typewriter({ delay, texts, baseText = "" }: ITypewriterProps) {
       onComplete: () => setAnimationComplete(true),
     })
     return () => {
-      controls.stop && controls.stop()
+      if (controls.stop) controls.stop()
     }
   }, [count, baseText.length, delay])
 
@@ -87,7 +87,7 @@ function RepeatedTextAnimation({
       },
     })
     return () => {
-      animation.stop && animation.stop()
+      if (animation.stop) animation.stop()
     }
   }, [count, delay, textIndex, texts, updatedThisRound])
 

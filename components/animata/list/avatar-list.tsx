@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const data = [
   {
@@ -62,7 +63,7 @@ export default function AvatarList({
           <div className="relative overflow-hidden rounded-full bg-white">
             <div className="bg-size pointer-events-none absolute h-full w-full animate-bg-position from-violet-500 from-30% via-cyan-400 via-50% to-pink-500 to-80% bg-[length:300%_auto] opacity-15 group-hover:bg-gradient-to-r" />
             <div className="z-1 blur-lg" />
-            <img
+            <Image
               src={item.image}
               alt={item.name}
               className={cn("rounded-full object-cover", sizes[size] ?? sizes.md)}
