@@ -1,7 +1,7 @@
 import { Bot } from "lucide-react";
 
 import BarChart from "@/components/animata/graphs/bar-chart";
-import AvatarList from "@/components/animata/list/avatar-list";
+// import AvatarList from "@/components/animata/list/avatar-list";
 // import Report from "@/animata/skeleton/report";
 // import WideCard from "@/animata/skeleton/wide-card";
 import Counter from "@/components/animata/text/counter";
@@ -74,18 +74,18 @@ function FeatureOne() {
     );
 }
 
-function FeatureTwo() {
-    return (
-        <BentoCard className="relative flex flex-col overflow-visible bg-violet-500 sm:col-span-2">
-            <strong className="text-2xl font-semibold text-white">
-                <Counter targetValue={179} format={(v) => +Math.ceil(v) + "k+ students"} />
-            </strong>
-            <div className="ml-4 mt-auto">
-                <AvatarList size="sm" className="py-0" />
-            </div>
-        </BentoCard>
-    );
-}
+// function FeatureTwo() {
+//     return (
+//         <BentoCard className="relative flex flex-col overflow-visible bg-violet-500 sm:col-span-2">
+//             <strong className="text-2xl font-semibold text-white">
+//                 <Counter targetValue={179} format={(v) => +Math.ceil(v) + "k+ students"} />
+//             </strong>
+//             <div className="ml-4 mt-auto">
+//                 <AvatarList size="sm" className="py-0" />
+//             </div>
+//         </BentoCard>
+//     );
+// }
 
 function FeatureThree() {
     return (
@@ -182,7 +182,7 @@ export default function Eight() {
         <div className="storybook-fix w-4/5 mx-auto">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-4 sm:grid-rows-3">
                 <FeatureOne />
-                <FeatureTwo />
+                {/* <FeatureTwo /> */}
                 <FeatureThree />
                 {/* <FeatureFour /> */}
                 <FeatureFive />
