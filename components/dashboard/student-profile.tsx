@@ -89,21 +89,21 @@ export function StudentProfile({
             <User className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Name</p>
-              <p className="text-sm text-muted-foreground">{user.name}</p>
+              <p className="text-sm text-muted-foreground">{user.user?.name}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <Mail className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Email</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground">{user.user?.email}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <School className="h-5 w-5 text-teal-600" />
             <div className="space-y-0.5">
               <p className="text-sm font-medium">College</p>
-              <p className="text-sm text-muted-foreground">{user.college}</p>
+              <p className="text-sm text-muted-foreground">{user.user?.college.name}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">

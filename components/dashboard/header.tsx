@@ -23,24 +23,38 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   const router = useRouter()
 
   const handleLogout = async () => {
-    localStorage.removeItem("authToken")
-    router.push("/")
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', 
+      });
+
+      if (response.ok) {
+        router.push("/");
+      } else {
+        console.error('Logout failed');
+        router.push("/");
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push("/");
+    }
   }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
       <div className="flex h-14 items-center justify-between">
         <div className="mr-4 flex items-center">
-          <div>
-            <Link href="/student/dashboard" >
-            <h1 className="text-xl font-semibold tracking-tight text-teal-700">
-              Project Display
-            </h1>
-            </Link>
-            <p className="text-xs text-muted-foreground ">
-              IIT Jammu Project Portal
-            </p>
-          </div>
+          <Link href={"/student/dashboard"}>
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
+                Career CatalystX
+              </h1>
+              <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent text-center">
+                Match. Collaborate. Build.
+              </p>
+            </div>
+          </Link>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -57,9 +71,9 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.name}</p>
+                    <p className="text-sm font-medium leading-none">{user.user?.name}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
+                      {user.user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>

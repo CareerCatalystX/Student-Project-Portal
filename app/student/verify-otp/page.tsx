@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, Suspense } from "react"
+import React, { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -28,6 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
 
 const formSchema = z.object({
   otp: z.string().length(6, "OTP must be exactly 6 digits"),
@@ -35,7 +36,7 @@ const formSchema = z.object({
 
 function VerifyOTPForm() {
   const [isLoading, setIsLoading] = useState(false)
-  const [countdown, setCountdown] = useState(60)
+  // const [countdown, setCountdown] = useState(60)
   const [err, setErr] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -48,46 +49,54 @@ function VerifyOTPForm() {
     },
   })
 
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [countdown])
+  // useEffect(() => {
+  //   if (countdown > 0) {
+  //     const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+  //     return () => clearTimeout(timer)
+  //   }
+  // }, [countdown])
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    try {
-      const response = await fetch("/api/auth/student/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: values.otp }),
-      })
+    toast.promise(
+      (async () => {
+        const response = await fetch("/api/auth/student/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp: values.otp }),
+        });
 
-      if (response.ok) {
-        const data = await response.json()
-        const token = data.token
-        localStorage.setItem("authToken", token)
-        router.push("/student/dashboard")
-      }else{
-        const data = await response.json()
-        setErr(data.error)
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "OTP verification failed");
+        }
+
+        const data = await response.json();
+
+        router.push("/student/dashboard");
+        return data;
+      })(),
+      {
+        loading: "Verifying OTP...",
+        success: () => {
+          setIsLoading(false)
+          return "OTP verified successfully! Redirecting..."
+        },
+        error: (err) => {
+          setIsLoading(false)
+          setErr(err.message); // still sets error state if you need to show in UI
+          return "Verification failed: " + err.message;
+        },
       }
-
-      
-    } catch (error) {
-      console.error("Verification error:", error)
-    } finally {
-      setIsLoading(false)
-    }
+    );
   }
 
   async function handleResendOTP() {
     setIsLoading(true)
     try {
       router.push("/student/login")
-      setCountdown(60)
+      // setCountdown(60)
     } catch (error) {
       console.error("Resend OTP error:", error)
     } finally {
@@ -105,7 +114,7 @@ function VerifyOTPForm() {
             <FormItem>
               <FormLabel className="text-gray-600">Verification Code</FormLabel>
               <FormControl>
-                <InputOTP 
+                <InputOTP
                   maxLength={6}
                   value={field.value}
                   onChange={field.onChange}
@@ -128,43 +137,27 @@ function VerifyOTPForm() {
             </FormItem>
           )}
         />
-        {err && (
-                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
-                  <AlertDescription>{err}</AlertDescription>
-                </Alert>
-              )}
         <Button
-                        type="submit"
-                        className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <div className="flex space-x-2 justify-center items-center">
-                            <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                            <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                            <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                          </div>
-                        ) : (
-                          "Verify"
-                        )}
-                      </Button>
+          type="submit"
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center"
+          disabled={isLoading}
+        >
+          {isLoading ? "Verifying..." : "Verify"}
+        </Button>
         <div className="text-center">
-                  {countdown > 0 ? (
-                    <p className="text-sm text-teal-500">
-                      Resend code in {countdown} seconds
-                    </p>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      disabled={isLoading}
-                      onClick={handleResendOTP}
-                      className="mx-auto text-teal-600 hover:underline"
-                    >
-                      Resend verification code
-                    </Button>
-                  )}
-                </div>
+          <div className="text-center text-xs text-teal-500">
+            Code valid for 10 minutes
+          </div>
+          <Button
+            type="button"
+            variant="link"
+            disabled={isLoading}
+            onClick={handleResendOTP}
+            className="mx-auto text-teal-600 hover:underline"
+          >
+            Resend verification code
+          </Button>
+        </div>
       </form>
     </Form>
   )

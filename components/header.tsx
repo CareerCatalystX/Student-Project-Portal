@@ -16,9 +16,9 @@ export default function Header() {
           <div className="flex items-center gap-8">
             <div>
               <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
-                Projects Karo
+                Career CatalystX
               </h1>
-              <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent">
+              <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent text-center">
                 Match. Collaborate. Build.
               </p>
             </div>

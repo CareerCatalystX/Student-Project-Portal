@@ -1,29 +1,42 @@
-export async function fetchProfile() {
-    if (typeof window === "undefined") {
-        throw new Error("localStorage is not available on the server");
-      }
-    const token = localStorage.getItem("authToken"); // Retrieve token from localStorage (or sessionStorage)
-  
+// lib/auth.ts
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET!;
+
+export async function getServerProfile() {
+  try {
+    const cookieStore = cookies();
+    
+    const studentToken = (await cookieStore).get('studentToken');
+    const professorToken = (await cookieStore).get('professorToken');
+    
+    const token = studentToken?.value || professorToken?.value;
+    
     if (!token) {
-      throw new Error("Authentication token not found");
+      return null;
     }
-  
-    const response = await fetch("/api/auth/profile", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-    if (response.status === 401) {
-      throw new Error("Invalid or expired token");
-    }
-  
-    if (!response.ok) {
-      throw new Error("Failed to fetch profile");
-    }
-  
-    return response.json();
+
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      id: string;
+      role: string;
+      name: string;
+      collegeId: string;
+      studentId?: string;
+      professorId?: string;
+    };
+
+    return {
+      id: decoded.id,
+      role: decoded.role,
+      name: decoded.name,
+      collegeId: decoded.collegeId,
+      studentId: decoded.studentId,
+      professorId: decoded.professorId,
+    };
+
+  } catch (error) {
+    console.error('Server profile fetch error:', error);
+    return null;
   }
-  
+}
