@@ -4,52 +4,23 @@ import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { StudentProfile } from "@/components/dashboard/student-profile"
 import { ApplicationsList } from "@/components/dashboard/applications-list"
-import { UserProfile } from "@/types/api"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/dashboardContext"
 
 export default function DashboardPage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { profile, loading } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    async function fetchProfile() {
-      const token = localStorage.getItem("authToken")
-      if (!token) {
-        router.push("/student/login")
-        return
-      }
-
-      try {
-        const response = await fetch("/api/auth/profile/student", {
-          method: "GET",
-          credentials: "include",
-        })
-
-        if (!response.ok) {
-          router.push("/student/login")
-          return
-        }
-
-        const data = await response.json()
-        console.log(data)
-        setProfile(data.student)
-      } catch {
-        router.push("/student/login")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProfile()
-  }, [router])
-
-  if (loading || !profile) {
+  if (loading) {
     return (
       <div className={cn("flex h-screen w-screen items-center justify-center bg-white")}>
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-teal-700"></div>
       </div>
     )
+  }
+
+  if(!profile){
+    router.push("/student/login")
   }
 
   return (
@@ -59,13 +30,13 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight text-teal-700">Student Dashboard</h2>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="grid gap-4">
           <StudentProfile 
-            className="col-span-2 lg:col-span-3 h-fit w-full bg-gradient-to-t from-white to-teal-50 shadow-md shadow-teal-50" 
+            className="" 
             user={profile} 
           />
           <ApplicationsList 
-            className="col-span-2 h-fit lg:col-span-4 bg-gradient-to-t from-teal-500 to-teal-600" 
+            className="= h-fit bg-gradient-to-t from-teal-500 to-teal-600" 
             applications={profile?.applications} 
           />
         </div>

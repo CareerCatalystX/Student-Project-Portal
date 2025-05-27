@@ -35,44 +35,60 @@ export async function GET(req: NextRequest) {
     try {
         const { studentId } = await authenticateStudent(req);
         const student = await prisma.student.findUnique({
-            where: { id: studentId },
-            include: {
+            where: {
+                id: studentId
+            },
+            select: {
+                isUpdated: true,
+                year: true,
+                branch: true,
+                cvUrl: true,
+                bio: true,
+                gpa: true,
                 user: {
-                    include: {
-                        college: true,
+                    select: {
+                        name: true,
+                        email: true,
+                        role: true,
+                        college: {
+                            select: {
+                                name: true
+                            }
+                        },
                         subscriptions: {
-                            include: {
-                                plan: true
+                            orderBy: { startedAt: 'desc' },
+                            select: {
+                                planId: true,
+                                status: true,
+                                startedAt: true,
+                                endsAt: true,
+                                plan: {
+                                    select: {
+                                        name: true,
+                                        billingCycle: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                skills: {
+                    select: {
+                        skill: {
+                            select: {
+                                name: true
                             }
                         }
                     }
                 },
                 applications: {
-                    include: {
-                        project: {
-                            include: {
-                                professor: {
-                                    include: {
-                                        user: true
-                                    }
-                                },
-                                college: true,
-                                catego0ry: true,
-                                skills: {
-                                    include: {
-                                        skill: true
-                                    }
-                                }
-                            }
-                        }
-                    },
                     orderBy: {
                         appliedAt: 'desc'
-                    }
-                },
-                skills: {
-                    include: {
-                        skill: true
+                    },
+                    select: {
+                        id: true,
+                        status: true,
+                        appliedAt: true
                     }
                 }
             }

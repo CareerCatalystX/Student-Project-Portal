@@ -125,7 +125,7 @@ function SignupForm() {
             <CardTitle className="text-2xl text-teal-600">Create Student Account</CardTitle>
           </div>
           <CardDescription className="text-teal-600/80">
-            Enter your information to create your your account
+            Enter your information to create your account
           </CardDescription>
         </CardHeader>
         <CardContent>

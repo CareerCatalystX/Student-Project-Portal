@@ -67,6 +67,7 @@ export async function POST(req: Request) {
       message: 'OTP sent to email. Please verify.',
     });
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: 'An error occurred during signin.' },
       { status: 500 }

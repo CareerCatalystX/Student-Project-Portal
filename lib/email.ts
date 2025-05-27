@@ -28,7 +28,7 @@ export async function sendEmail(email: string, title: string, message: string) {
   };
 
   await transporter.sendMail(mailOptions);
-} 
+}
 
 
 export async function sendApplicationStatusEmail(
