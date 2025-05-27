@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 // Middleware to authenticate student
 async function authenticateStudent(req: NextRequest) {
     const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
+    const token = cookieStore.get('studentToken')?.value;
     if(!token){
         throw new Error('Authentication token is missing');
     }
@@ -66,7 +66,8 @@ export async function PUT(req: NextRequest) {
                 branch,
                 cvUrl,
                 bio,
-                gpa
+                gpa,
+                isUpdated: true,
              },
         });
 

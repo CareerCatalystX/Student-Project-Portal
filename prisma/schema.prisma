@@ -67,6 +67,7 @@ model Student {
   user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications Application[]
   skills       StudentSkill[]
+  isUpdated    Boolean         @default(false)
 }
 
 model Professor {

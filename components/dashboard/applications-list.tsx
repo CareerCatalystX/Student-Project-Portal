@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Inbox } from 'lucide-react'
-import { Application } from "@/types/api"
+import { Application } from "@/types/profile"
 import Link from "next/link"
 
 interface ApplicationsListProps extends React.HTMLAttributes<HTMLDivElement> {
