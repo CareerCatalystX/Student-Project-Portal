@@ -34,25 +34,39 @@ export async function GET(req: NextRequest) {
         const { professorId } = await authenticateProfessor(req);
         const professor = await prisma.professor.findUnique({
             where: { id : professorId },
-            include: {
+            select: {
+                isUpdated: true,
+                department: true,
+                designation: true,
+                qualification: true,
+                researchAreas: true,
+                officeLocation: true,
+                officeHours: true,
+                bio: true,
+                publications: true,
+                websiteUrl: true,
                 projects: {
                     select: {
                         id: true,
                         title: true,
                         description: true,
-                        duration: true,
-                        stipend: true,
-                        deadline: true,
                         closed: true,
-                        department: true,
-                        numberOfStudentsNeeded: true,
-                        preferredStudentDepartments: true,
-                        certification: true,
-                        letterOfRecommendation: true,
-                        createdAt: true,
-                    },
+                        deadline:true
+                    }
                 },
-            },
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                        role: true,
+                        college: {
+                            select: {
+                                name: true
+                            }
+                        },
+                    }
+                },
+            }
         });
 
         if (!professor) {

@@ -46,7 +46,7 @@ const formSchema = z.object({
 });
 
 export default function UpdateProfile() {
-    const { profile, loading, setIsUpdated } = useAuth();
+    const { profile, loading, setIsUpdated, refreshProfile } = useAuth();
     const router = useRouter();
 
     // Always call useForm - this fixes the Rules of Hooks violation
@@ -109,7 +109,7 @@ export default function UpdateProfile() {
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <UpdateProfileForm form={form} setIsUpdated={setIsUpdated} />
+            <UpdateProfileForm form={form} setIsUpdated={setIsUpdated} refreshProfile={refreshProfile} />
         </Suspense>
     );
 }
@@ -117,9 +117,10 @@ export default function UpdateProfile() {
 interface UpdateProfileFormProps {
     form: UseFormReturn<z.infer<typeof formSchema>>;
     setIsUpdated: React.Dispatch<React.SetStateAction<boolean>>;
+    refreshProfile: () => void;
 }
 
-function UpdateProfileForm({ form, setIsUpdated }: UpdateProfileFormProps) {
+function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfileFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const departments = [
         "Computer Science",
@@ -160,6 +161,7 @@ function UpdateProfileForm({ form, setIsUpdated }: UpdateProfileFormProps) {
             loading: "Updating your profile...",
             success: () => {
                 setIsLoading(false);
+                refreshProfile();
                 router.push("/student/dashboard")
                 return "Profile updated successfully.";
             },

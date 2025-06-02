@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -26,16 +26,25 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
 
 const formSchema = z.object({
   email: z
     .string()
     .email("Invalid email address"),
-    // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
+  // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [err, setErr] = useState("")
@@ -51,25 +60,32 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    try {
+    const loginPromise = async () => {
       const response: any = await fetch("/api/auth/professor/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       })
-
       if (!response.ok) {
         const data = await response.json()
-        setErr(`${data.error}`)
-        throw new Error("Login failed")
+        throw new Error(data.error || "Login failed")
       }
 
-      router.push(`/professor/verify-otp?email=${encodeURIComponent(values.email)}`)
-    } catch (error) {
-      console.error("Login error:", error)
-    } finally {
-      setIsLoading(false)
+      return response.json()
     }
+    toast.promise(loginPromise(), {
+      loading: "Logging you in...",
+      success: (data) => {
+        router.push(`/professor/verify-otp?email=${encodeURIComponent(values.email)}`)
+        setIsLoading(false)
+        return "OTP sent to your email. Please verify to continue."
+      },
+      error: (err) => {
+        setErr(err.message)
+        setIsLoading(false)
+        return "Login failed: " + err.message
+      },
+    })
   }
 
   return (
@@ -145,25 +161,12 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              {err && (
-                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
-                  <AlertDescription>{err}</AlertDescription>
-                </Alert>
-              )}
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center"
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <div className="flex space-x-2 justify-center items-center">
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                  </div>
-                ) : (
-                  "Sign in"
-                )}
+                {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </Form>
@@ -199,4 +202,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

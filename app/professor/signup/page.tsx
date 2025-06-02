@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -34,13 +34,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z
     .string()
     .email("Invalid email address"),
-    // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
+  // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
   password: z
     .string()
     .min(6, "Password must be at least 6 characters")
@@ -52,10 +53,18 @@ const formSchema = z.object({
 })
 
 export default function SignupPage() {
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
+  );
+
+}
+
+function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -70,29 +79,31 @@ export default function SignupPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    setError(null)
-    setMessage(null)
-    try {
+    const signupPromise = async () => {
       const response = await fetch("/api/auth/professor/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setMessage(data.message)
-        router.push(`/professor/verify-otp?email=${encodeURIComponent(values.email)}`)
-      } else {
-        const data = await response.json()
-        setError(data.error || "Signup failed.")
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Signup failed");
       }
-    } catch (error) {
-      console.error("Signup error:", error)
-      setError("An error occurred. Please try again.")
-    } finally {
-      setIsLoading(false)
+
+      return response.json(); // return parsed response to use in toast
     }
+    toast.promise(signupPromise(), {
+      loading: "Creating your account...",
+      success: (data) => {
+        setIsLoading(false);
+        router.push(`/professor/verify-otp?email=${encodeURIComponent(values.email)}`);
+        return "OTP sent to your email. Please verify to continue.";
+      },
+      error: (err) => {
+        setIsLoading(false)
+        return "Signup failed: " + err.message;
+      },
+    });
   }
 
   return (
@@ -120,11 +131,11 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel className="text-blue-600">Full Name</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Dr. John Doe" 
-                          {...field} 
+                        <Input
+                          placeholder="Dr. John Doe"
+                          {...field}
                           disabled={isLoading}
-                          className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50" 
+                          className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50"
                         />
                       </FormControl>
                       <FormMessage className="text-red-500" />
@@ -225,33 +236,13 @@ export default function SignupPage() {
                 )}
               />
 
-              {error && (
-                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              
-              {message && (
-                <Alert className="bg-green-50 text-green-600 border-green-200">
-                  <AlertDescription>{message}</AlertDescription>
-                </Alert>
-              )}
-
               <Button
-                              type="submit"
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center"
-                              disabled={isLoading}
-                            >
-                              {isLoading ? (
-                                <div className="flex space-x-2 justify-center items-center">
-                                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                  <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                                </div>
-                              ) : (
-                                "Create Account"
-                              )}
-                            </Button>
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
+              </Button>
             </form>
           </Form>
         </CardContent>
@@ -270,4 +261,3 @@ export default function SignupPage() {
     </div>
   )
 }
-

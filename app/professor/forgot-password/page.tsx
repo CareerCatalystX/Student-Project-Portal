@@ -15,9 +15,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z
+    .string()
+    .email("Invalid email address")
+  // .regex(/^[a-zA-Z0-9._%+-]+@iitjammu\.ac\.in$/, "Email must belong to the iitjammu.ac.in domain"),
 });
 
 export default function ForgotPasswordPage() {
@@ -36,40 +40,41 @@ export default function ForgotPasswordPage() {
     setStatusMessage(null); // Reset the message before making the request
     setIsEmailSent(false); // Reset the email sent flag
 
-    try {
+    const forgotPromise = async () => {
       const response = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: values.email,
-          role: "professor", // Ensure the role is sent as "professor"
-        }),
+        body: JSON.stringify(values),
       });
-
       if (!response.ok) {
-        throw new Error("Password reset request failed");
+        const data = await response.json()
+        throw new Error(data.message || "Login failed")
       }
 
-      setIsEmailSent(true); // Set the email sent flag to true on success
-      setStatusMessage(
-        "Password reset link has been sent to your your email."
-      );
-    } catch (error) {
-      console.error("Error during password reset:", error);
-      setStatusMessage("An error occurred. Please try again later.");
-    } finally {
-      setIsLoading(false);
+      return response.json()
     }
+
+    toast.promise(forgotPromise(), {
+      loading: "Sending you reset password link...",
+      success: (data) => {
+        setIsLoading(false);
+          setIsEmailSent(true);
+        return "Resent password link sent to registered email."
+      },
+      error: (err) => {
+        setStatusMessage(err.message)
+        setIsLoading(false)
+        return "Server error: " + err.message
+      }
+    })
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-blue-500 px-4 py-12">
       <div className="w-full max-w-md bg-white p-6 shadow-md rounded-md">
-        <h2 className="text-2xl font-bold text-blue-600 mb-4">
-          Forgot Password
-        </h2>
+        <h2 className="text-2xl font-bold text-blue-600 mb-4">Forgot Password</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -90,35 +95,13 @@ export default function ForgotPasswordPage() {
                 </FormItem>
               )}
             />
-            {!isEmailSent ? (
-              <Button
+            <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center"
-              disabled={isLoading}
+              disabled={isLoading || isEmailSent}
             >
-              {isLoading ? (
-                <div className="flex space-x-2 justify-center items-center">
-                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                </div>
-              ) : (
-                "Send Reset Link"
-              )}
+              {isLoading ? "Sending reset link..." : "Send reset link"}
             </Button>
-            ) : (
-              <Alert className="bg-green-50 text-green-600 border-green-200 mt-2">
-                <AlertDescription>{statusMessage}</AlertDescription>
-              </Alert>
-                        )}
-                        {statusMessage && !isEmailSent && (
-              <Alert
-                variant="destructive"
-                className="bg-red-50 text-red-600 border-red-200 mt-2"
-              >
-                <AlertDescription>{statusMessage}</AlertDescription>
-              </Alert>
-            )}
           </form>
         </Form>
       </div>

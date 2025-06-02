@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   newPassword: z
@@ -31,13 +32,26 @@ const formSchema = z.object({
 function ResetPasswordContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false)
   const router = useRouter();
   const searchParams = useSearchParams();
+  const handleLogout = async (): Promise<void> => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const token = searchParams.get("token");
-  const role = searchParams.get("role");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,18 +61,19 @@ function ResetPasswordContent() {
   });
 
   useEffect(() => {
-    if (!token || !role) {
-      setStatusMessage("Invalid token or role.");
+    if (!token) {
+      setStatusMessage("Invalid token.");
     }
-  }, [token, role]);
+  }, [token]);
 
-  async function onSubmit() {
-    if (!newPassword || !token || !role) return;
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const { newPassword } = data;
+
+    if (!token) return;
 
     setIsLoading(true);
     setStatusMessage(null);
-
-    try {
+    const updatePromise = async () => {
       const response = await fetch("/api/auth/update-password", {
         method: "POST",
         headers: {
@@ -66,26 +81,39 @@ function ResetPasswordContent() {
         },
         body: JSON.stringify({
           token,
-          role,
           newPassword,
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to update password");
+        const data = await response.json()
+        throw new Error(data.statusText || "Invalid / Expired token")
       }
 
-      if (role === "professor") {
-        router.push("/professor/login");
-      } else {
-        router.push("/student/login");
-      }
-    } catch (error) {
-      console.error("Error during password update:", error);
-      setStatusMessage("An error occurred while updating your password.");
-    } finally {
-      setIsLoading(false);
+      return data;
     }
+
+    toast.promise(updatePromise(), {
+      loading: "Updating password...",
+      success: async (data) => {
+        setIsUpdated(true)
+        setIsLoading(false)
+        await handleLogout();
+        if (data.role === "PROFESSOR") {
+          router.push("/professor/login");
+        } else {
+          router.push("/student/login");
+        }
+        return "Password updated."
+      },
+      error: (err) => {
+        setStatusMessage(err.message)
+        setIsLoading(false)
+        return "Server error: " + statusMessage
+      }
+    })
   }
 
   return (
@@ -94,10 +122,7 @@ function ResetPasswordContent() {
         <h2 className="text-2xl font-bold text-yellow-600 mb-4">Update Password</h2>
         <Form {...form}>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              onSubmit();
-            }}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4"
           >
             <FormField
@@ -111,10 +136,9 @@ function ResetPasswordContent() {
                       <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your new password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
                         required
                         className="border-yellow-600 focus:ring-yellow-600 focus:border-yellow-600 bg-yellow-50/50 pr-10"
+                        {...field}
                       />
                       <Button
                         type="button"
@@ -139,25 +163,12 @@ function ResetPasswordContent() {
               )}
             />
             <Button
-                type="submit"
-                className="w-full bg-yellow-600 hover:bg-yellow-700 text-white transition-colors flex justify-center items-center"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex space-x-2 justify-center items-center">
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                  </div>
-                ) : (
-                  "Update Password"
-                )}
-              </Button>
-            {statusMessage && (
-              <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
-              <AlertDescription>{statusMessage}</AlertDescription>
-            </Alert>
-            )}
+              type="submit"
+              className="w-full bg-yellow-600 hover:bg-yellow-700 text-white transition-colors flex justify-center items-center"
+              disabled={isLoading || isUpdated}
+            >
+              {isLoading ? "Updating password..." : "Update Password"}
+            </Button>
           </form>
         </Form>
       </div>

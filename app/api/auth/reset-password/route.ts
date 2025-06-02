@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: 'Email and role are required' }, { status: 400 });
         }
 
-        // Determine the model and narrow the type
         const user = await prisma.user.findUnique({
             where: { email },
         });

@@ -27,6 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   otp: z.string().length(6, "OTP must be exactly 6 digits"),
@@ -34,7 +35,7 @@ const formSchema = z.object({
 
 function VerifyOTPForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [countdown, setCountdown] = useState(60);
+  // const [countdown, setCountdown] = useState(60);
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -46,42 +47,52 @@ function VerifyOTPForm() {
     },
   });
 
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
+  // useEffect(() => {
+  //   if (countdown > 0) {
+  //     const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [countdown]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    try {
-      const response = await fetch("/api/auth/professor/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: values.otp }),
-      });
+    toast.promise(
+      (async () => {
+        const response = await fetch("/api/auth/professor/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp: values.otp }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Verification failed");
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "OTP verification failed");
+        }
+
+        const data = await response.json();
+
+        router.push("/professor/dashboard");
+        return data;
+      })(),
+      {
+        loading: "Verifying OTP...",
+        success: () => {
+          setIsLoading(false)
+          return "OTP verified successfully! Redirecting..."
+        },
+        error: (err) => {
+          setIsLoading(false)
+          return "Verification failed: " + err.message;
+        },
       }
-
-      const data = await response.json();
-      const token = data.token;
-      localStorage.setItem("authToken", token);
-      router.push("/professor/dashboard");
-    } catch (error) {
-      console.error("Verification error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    );
   }
 
   async function handleResendOTP() {
     setIsLoading(true);
     try {
       router.push("/professor/login");
-      setCountdown(60);
+      // setCountdown(60);
     } catch (error) {
       console.error("Resend OTP error:", error);
     } finally {
@@ -123,36 +134,25 @@ function VerifyOTPForm() {
           )}
         />
         <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex space-x-2 justify-center items-center">
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                  </div>
-                ) : (
-                  "Verify"
-                )}
-              </Button>
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center"
+          disabled={isLoading}
+        >
+          {isLoading ? "Verifying..." : "Verify"}
+        </Button>
         <div className="text-center">
-          {countdown > 0 ? (
-            <p className="text-sm text-blue-500">
-              Resend code in {countdown} seconds
-            </p>
-          ) : (
-            <Button
-              type="button"
-              variant="link"
-              disabled={isLoading}
-              onClick={handleResendOTP}
-              className="mx-auto text-blue-600 hover:underline"
-            >
-              Resend verification code
-            </Button>
-          )}
+          <div className="text-center text-xs text-blue-500">
+            Code valid for 10 minutes
+          </div>
+          <Button
+            type="button"
+            variant="link"
+            disabled={isLoading}
+            onClick={handleResendOTP}
+            className="mx-auto text-blue-600 hover:underline"
+          >
+            Resend verification code
+          </Button>
         </div>
       </form>
     </Form>
