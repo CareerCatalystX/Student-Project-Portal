@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 // Middleware to authenticate professor
 async function authenticateProfessor(req: NextRequest) {
     const cookieStore = await cookies();
-        const token = cookieStore.get('token')?.value;
+        const token = cookieStore.get('professorToken')?.value;
         if(!token){
             throw new Error('Authentication token is missing');
         }
@@ -70,7 +70,8 @@ export async function PUT(req: NextRequest) {
                 officeHours, 
                 bio, 
                 publications, 
-                websiteUrl
+                websiteUrl,
+                isUpdated: true
              },
         });
 
@@ -79,7 +80,7 @@ export async function PUT(req: NextRequest) {
             { status: 200 }
         );
     } catch (error: any) {
-        console.error('Error updating Profile:', error.issues[0].message);
+        console.error('Error updating Profile:', error);
         return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
     }
 }

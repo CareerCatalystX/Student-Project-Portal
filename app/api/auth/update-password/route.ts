@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
                 }
             },
         });
-        return NextResponse.json({ message: 'Password updated successfully' }, { status: 200 });
+        return NextResponse.json({ message: 'Password updated successfully', role: user.role }, { status: 200 });
     } catch (error: any) {
         console.error('Error updating password:', error.message);
         return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

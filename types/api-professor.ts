@@ -1,27 +1,31 @@
-export interface Project {
-    id: string
-    title: string
-    description: string
-    duration: string
-    stipend: number
-    deadline: string
-    features: string[]
-    closed: boolean
-  }
-  
-  export interface ProfessorProfile {
-    id: string
-    name: string
-    department: string
-    email: string
-    createdAt: string
-    updatedAt: string
-    projects: Project[]
-  }
-  
-  export interface ProfileResponse {
-    message: string
-    user: ProfessorProfile
-  }
-  
-  
+export interface ProfessorProject {
+  id: string;
+  title: string;
+  description: string;
+  closed: boolean;
+  deadline: string;
+}
+
+export interface ProfessorUser {
+  name: string;
+  email: string;
+  role: string;
+  college: {
+    name: string;
+  };
+}
+
+export interface ProfessorProfileType {
+  isUpdated: boolean;
+  department: string;
+  designation: string;
+  qualification: string;
+  researchAreas: string;
+  officeLocation: string;
+  officeHours: string;
+  bio: string;
+  publications: string;
+  websiteUrl: string;
+  projects: ProfessorProject[];
+  user: ProfessorUser;
+}

@@ -7,12 +7,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, IndianRupee } from 'lucide-react'
-import { Project } from "@/types/api-professor"
+import { ProfessorProject } from "@/types/api-professor"
 import Link from "next/link"
 
 interface ProjectsListProps extends React.HTMLAttributes<HTMLDivElement> {
-  projects?: Project[]
+  projects?: ProfessorProject[]
 }
 
 export function ProjectsList({ projects = [], className, ...props }: ProjectsListProps) {
@@ -70,7 +69,7 @@ export function ProjectsList({ projects = [], className, ...props }: ProjectsLis
   )
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project }: { project: ProfessorProject }) {
   const isOutdated = project && new Date(project?.deadline) < new Date() && !project?.closed;
   return (
     <div className="rounded-lg border p-4  bg-white">
@@ -89,27 +88,6 @@ function ProjectCard({ project }: { project: Project }) {
                 }`}>
           {project.closed ? "Closed" : isOutdated ? "Overdue" : "Active"}
         </Badge>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span>{project.duration}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span>Due {new Date(project.deadline).toLocaleDateString()}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <IndianRupee className="h-4 w-4 text-muted-foreground" />
-          <span>₹{project.stipend}/month</span>
-        </div>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {project.features.map((feature, index) => (
-          <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white">
-            {feature}
-          </Badge>
-        ))}
       </div>
       <div className="mt-4 flex gap-2">
         <Button variant="outline" asChild className="flex-1">

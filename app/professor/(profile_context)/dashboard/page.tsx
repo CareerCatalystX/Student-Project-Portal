@@ -5,53 +5,24 @@ import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/professor/header";
 import { ProfessorProfile } from "@/components/professor/professor-profile";
 import { ProjectsList } from "@/components/professor/projects-list";
-import { ProfessorProfile as ProfessorProfileType } from "@/types/api-professor";
+import { ProfessorProfileType } from "@/types/api-professor";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/professorDashboardContext";
 
 export default function ProfessorDashboardPage() {
-  const [profile, setProfile] = useState<ProfessorProfileType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, loading } = useAuth()
   const router = useRouter();
 
-  useEffect(() => {
-    async function fetchProfile() {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        router.push("/professor/login");
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/auth/profile/professor", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          router.push("/professor/login");
-          return;
-        }
-
-        const data = await response.json();
-        setProfile(data.professor);
-      } catch {
-        router.push("/professor/login");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProfile();
-  }, [router]);
-
-  if (loading || !profile) {
+  if (loading) {
     return (
       <div className={cn("flex h-screen w-screen items-center justify-center bg-white")}>
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-700"></div>
       </div>
     );
+  }
+
+  if(!profile){
+    router.push("/professor/login")
   }
 
   return (
@@ -67,7 +38,7 @@ export default function ProfessorDashboardPage() {
             user={profile} 
           />
           <ProjectsList 
-            className="col-span-2 lg:col-span-4 bg-gradient-to-t from-blue-500 to-blue-600" 
+            className="col-span-2 lg:col-span-4 h-fit bg-gradient-to-t from-blue-500 to-blue-600" 
             projects={profile?.projects} 
           />
         </div>

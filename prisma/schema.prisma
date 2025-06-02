@@ -84,6 +84,7 @@ model Professor {
   websiteUrl      String?
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   projects        Project[]   // Projects created by this professor
+  isUpdated       Boolean     @default(false)
 }
 
 // Projects created by colleges
