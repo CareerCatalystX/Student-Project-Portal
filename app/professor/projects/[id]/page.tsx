@@ -17,11 +17,10 @@ function ProjectDetails({ project }: { project: any }) {
               <CardTitle className="text-xl lg:text-2xl mb-2">{project.title}</CardTitle>
               <Badge
                 variant={project.closed ? "secondary" : "default"}
-                className={`${
-                  project.closed
-                    ? "bg-red-500 hover:bg-red-600 text-white"
-                    : "bg-green-600 hover:bg-green-700 text-white"
-                }`}
+                className={`${project.closed
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-green-600 hover:bg-green-700 text-white"
+                  }`}
               >
                 {project.closed ? "Closed" : "Open"}
               </Badge>
@@ -45,26 +44,123 @@ function ProjectDetails({ project }: { project: any }) {
             <h3 className="font-semibold mb-2">Professor</h3>
             <div className="flex items-center space-x-4">
               <div>
-                <p>{project.professor.name}</p>
+                <p>{project.professor?.user?.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {project.professor.department}
+                  {project.professor?.department}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {project.professor.email}
+                  {project.professor?.user?.email}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Features */}
-          <div>
-            <h3 className="font-semibold mb-2">Key Features</h3>
-            <ul className="list-disc list-inside text-muted-foreground">
-              {project.features.map((feature: string, index: number) => (
-                <li key={index}>{feature}</li>
-              ))}
-            </ul>
+          {/* Project Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Duration and Students */}
+            <div>
+              <h3 className="font-semibold mb-2">Project Details</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Duration:</span>
+                  <span>{project.duration}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Students Needed:</span>
+                  <span>{project.numberOfStudentsNeeded}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Department:</span>
+                  <span>{project.department}</span>
+                </div>
+                {project.category && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Category:</span>
+                    <span>{project.category.name}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Benefits */}
+            <div>
+              <h3 className="font-semibold mb-2">What You Get</h3>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${project.certification ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                  <span className={`text-sm ${project.certification ? 'text-green-700' : 'text-muted-foreground'}`}>
+                    Certification
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${project.letterOfRecommendation ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                  <span className={`text-sm ${project.letterOfRecommendation ? 'text-green-700' : 'text-muted-foreground'}`}>
+                    Letter of Recommendation
+                  </span>
+                </div>
+                {project.stipend && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-sm text-blue-700">₹{project.stipend}/month stipend</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
+
+          {/* Required Skills */}
+          {project.skills && project.skills.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">Required Skills</h3>
+              <div className="flex flex-wrap gap-2">
+                {project.skills.map((skillObj: any, index: number) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="bg-blue-50 text-blue-700 border-blue-200"
+                  >
+                    {skillObj.skill?.name || skillObj.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Preferred Student Departments */}
+          {project.preferredStudentDepartments && project.preferredStudentDepartments.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">Preferred Student Departments</h3>
+              <div className="flex flex-wrap gap-2">
+                {project.preferredStudentDepartments.map((dept: string, index: number) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="bg-gray-100 text-gray-700"
+                  >
+                    {dept}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Professor Information */}
+          <div>
+            <h3 className="font-semibold mb-2">Professor</h3>
+            <div className="flex items-center space-x-4">
+              <div>
+                <p>{project.professor?.user?.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {project.professor.department}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {project.professor?.user?.email}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex flex-col lg:flex-row gap-3">
             <Link href={`/professor/projects/${project.id}/edit`}>
               <Button className="w-full bg-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white">
@@ -82,7 +178,7 @@ function ProjectDetails({ project }: { project: any }) {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }
 

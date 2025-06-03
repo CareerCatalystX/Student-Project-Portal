@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest, {params}: { params: Promise<{ id: 
         }
 
         const { status } = await req.json();
-        if (!status || !['accepted', 'rejected'].includes(status)) {
+        if (!status || !['ACCEPTED', 'REJECTED'].includes(status)) {
             return NextResponse.json({ message: 'Invalid status. Allowed values are "accepted" or "rejected"' }, { status: 400 });
         }
 

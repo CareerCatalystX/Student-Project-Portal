@@ -32,13 +32,18 @@ export default async function ApplyPage({ params }: { params: Promise<{ id: stri
                 id={project.id}
                 title={project.title}
                 description={project.description}
-                professorName={project.professor.name}
+                professorName={project.professor?.user?.name}
                 deadline={project.deadline}
                 duration={project.duration}
                 department={project.department}
                 stipend={project.stipend}
-                features={project.features}
+                skills={project.skills}
                 closed={project.closed}
+                category={project.catego0ry}
+                numberOfStudentsNeeded={project.numberOfStudentsNeeded}
+                preferredStudentDepartments={project.preferredStudentDepartments}
+                letterOfRecommendation={project.letterOfRecommendation}
+                certification={project.certification}
             />
         </main>
     );

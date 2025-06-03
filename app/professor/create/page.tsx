@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Plus, X, Check, ChevronDown } from 'lucide-react'
+import { Plus, X, Check, ChevronDown, Search } from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,10 +21,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Switch } from "@/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useProjectData } from "@/contexts/categorySkillsContext"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
+import { toast } from "sonner"
 
 const DEPARTMENTS = [
   "Computer Science",
@@ -54,9 +58,9 @@ const projectFormSchema = z.object({
   ),
   stipend: z.number().min(0, "Stipend must be a positive number").optional(),
   deadline: z.string().min(1, "Deadline is required"),
-  features: z.array(z.string()).min(1, "At least one feature is required"),
   department: z.string().min(1, "Department is required"),
-  milestones: z.array(z.string().min(1, "Milestones is required")),
+  categoryName: z.string().min(1, "Category is required"),
+  skills: z.array(z.string()).min(1, "At least one skill is required"),
   numberOfStudentsNeeded: z.number().min(1, "At least one student is required"),
   preferredStudentDepartments: z
     .array(z.string())
@@ -70,11 +74,13 @@ type ProjectFormData = z.infer<typeof projectFormSchema>
 export default function NewProjectPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [featureInput, setFeatureInput] = useState("")
-  const [milestoneInput, setMilestoneInput] = useState("")
+  const [skillsOpen, setSkillsOpen] = useState(false)
+  const [skillSearch, setSkillSearch] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  
+  const { categories = [], skills = [], loading, error: dataError } = useProjectData()
+
+
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
@@ -84,9 +90,9 @@ export default function NewProjectPage() {
       duration: { number: 1, unit: "Month(s)" },
       stipend: undefined,
       deadline: "",
-      features: [],
+      skills: [],
       department: "",
-      milestones: [],
+      categoryName: "",
       numberOfStudentsNeeded: 1,
       preferredStudentDepartments: [],
       certification: false,
@@ -94,62 +100,43 @@ export default function NewProjectPage() {
     },
   })
 
-  const { setValue, watch } = form
-  const features = watch("features")
+  const selectedSkills = form.watch("skills") || []
 
-  const addFeature = () => {
-    if (featureInput.trim() && !features.includes(featureInput.trim())) {
-      setValue("features", [...features, featureInput.trim()])
-      setFeatureInput("")
+  const addSkill = (skillName: string, field: any) => {
+    const currentSkills = field.value || []
+    if (skillName.trim() && !currentSkills.includes(skillName.trim())) {
+      field.onChange([...currentSkills, skillName.trim()])
     }
   }
 
-  const removeFeature = (feature: string) => {
-    setValue(
-      "features",
-      features.filter((f) => f !== feature)
-    )
+  const removeSkill = (skillName: string) => {
+    form.setValue("skills", selectedSkills.filter((s) => s !== skillName))
   }
 
-  const milestones = watch("milestones")
-
-  const addMilestone = () => {
-    if (milestoneInput.trim() && !milestones.includes(milestoneInput.trim())) {
-      setValue("milestones", [...milestones, milestoneInput.trim()])
-      setMilestoneInput("")
+  const addCustomSkill = () => {
+    if (skillSearch.trim() && !selectedSkills.includes(skillSearch.trim())) {
+      form.setValue("skills", [...selectedSkills, skillSearch.trim()])
+      setSkillSearch("")
+      setSkillsOpen(false)
     }
-  }
-
-  const removeMilestone = (milestone: string) => {
-    setValue(
-      "milestones",
-      milestones.filter((m) => m !== milestone),
-    )
   }
 
   async function onSubmit(data: ProjectFormData) {
     setIsSubmitting(true)
     setError(null)
 
-    try {
-      const token = localStorage.getItem("authToken")
-      if (!token) {
-        router.push("/professor/login")
-        throw new Error("Authentication token not found")
-      }
-
-      // Create a new object with the duration concatenated as a string
+    const createProjectPromise = async () => {
       const formattedData = {
         ...data,
+        deadline: new Date(data.deadline),
         duration: `${data.duration.number} ${data.duration.unit}`, // Concatenate with space
       }
-
       const response = await fetch("/api/projects/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(formattedData),
       })
 
@@ -158,13 +145,29 @@ export default function NewProjectPage() {
         throw new Error(error.message || "Failed to create project")
       }
 
-      router.push("/professor/dashboard")
-    } catch (err: any) {
-      router.push("/professor/dashboard")
-      setError(err.message)
-    } finally {
-      setIsSubmitting(false)
+      return response.json();
     }
+    toast.promise(createProjectPromise(), {
+      loading: "Creating new project...",
+      success: () => {
+        router.push("/professor/dashboard")
+        setIsSubmitting(false)
+        return "New project created successfully.";
+      },
+      error: (err) => {
+        setError(err.message)
+        setIsSubmitting(false)
+        return "Project creation failed: " + error;
+      },
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className={cn("flex h-screen w-screen items-center justify-center bg-white")}>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-700"></div>
+      </div>
+    );
   }
 
   return (
@@ -202,7 +205,7 @@ export default function NewProjectPage() {
                     <FormControl>
                       <Textarea
                         placeholder="Describe your project"
-                        {...field} 
+                        {...field}
                         className="min-h-[100px] border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50"
                       />
                     </FormControl>
@@ -272,7 +275,7 @@ export default function NewProjectPage() {
                       <FormLabel className="text-blue-600">Stipend (₹/month)</FormLabel>
                       <FormControl>
                         <Input
-                          type="number" 
+                          type="number"
                           className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50"
                           placeholder="Enter amount"
                           value={field.value || ""}
@@ -307,93 +310,222 @@ export default function NewProjectPage() {
                 )}
               />
 
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="department"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-blue-600">Department</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50">
+                            <SelectValue placeholder="Select your department" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DEPARTMENTS.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="categoryName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-blue-600">Project Category</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50">
+                            <SelectValue placeholder="Select project category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.name}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
-                name="department"
+                name="skills"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-blue-600">Department</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-blue-50/50">
-                          <SelectValue placeholder="Select your department" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Computer Science">Computer Science</SelectItem>
-                        <SelectItem value="Electrical">Electrical</SelectItem>
-                        <SelectItem value="Mathematics and Computing">Mathematics and Computing</SelectItem>
-                        <SelectItem value="Mechanical">Mechanical</SelectItem>
-                        <SelectItem value="Civil">Civil</SelectItem>
-                        <SelectItem value="Chemical">Chemical</SelectItem>
-                        <SelectItem value="Material">Material</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-red-500" />
+                    <FormLabel className="text-blue-600">Required Skills</FormLabel>
+                    <FormDescription className="text-blue-600/80">
+                      Select existing skills or add new ones by typing and pressing Enter.
+                    </FormDescription>
+
+                    <Popover open={skillsOpen} onOpenChange={setSkillsOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between border-blue-200 bg-blue-50/50 hover:bg-blue-100"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Search className="h-4 w-4" />
+                              Search or add skills...
+                            </span>
+                            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-full p-2 bg-white border border-blue-200 rounded-md shadow-md transition-all duration-200 ease-in-out">
+                        <Command className="max-h-60 overflow-hidden">
+                          <CommandInput
+                            placeholder="Search skills..."
+                            value={skillSearch}
+                            onValueChange={setSkillSearch}
+                          />
+                          <div className="max-h-40 overflow-y-auto">
+                            <CommandEmpty className="p-4">
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 mb-2">No skills found.</p>
+                                {skillSearch && (
+                                  <Button
+                                    size="sm"
+                                    onClick={addCustomSkill}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                  >
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    Add "{skillSearch}"
+                                  </Button>
+                                )}
+                              </div>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {skills
+                                .filter(skill =>
+                                  skill.name.toLowerCase().includes(skillSearch.toLowerCase())
+                                )
+                                .map((skill) => (
+                                  <CommandItem
+                                    key={skill.id}
+                                    onSelect={() => {
+                                      addSkill(skill.name, field)
+                                      setSkillsOpen(false)
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    <Check
+                                      className={`mr-2 h-4 w-4 ${selectedSkills.includes(skill.name)
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                        }`}
+                                    />
+                                    {skill.name}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </div>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {field.value?.map((skill) => (
+                        <Badge
+                          key={skill}
+                          variant="secondary"
+                          className="bg-blue-100 text-blue-700 hover:bg-blue-200 relative py-1 px-6"
+                        >
+                          {skill}
+                          <button
+                            type="button"
+                            onClick={() => removeSkill(skill)}
+                            className="absolute -top-1 -right-1 bg-blue-700 text-white rounded-full p-0.5 text-xs leading-none"
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-<FormField
-      control={form.control}
-      name="preferredStudentDepartments"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-blue-600">Preferred Student Departments</FormLabel>
-          <FormDescription className="text-blue-600/80">
-            Select departments that students should be from.
-          </FormDescription>
+              <FormField
+                control={form.control}
+                name="preferredStudentDepartments"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-600">Preferred Student Departments</FormLabel>
+                    <FormDescription className="text-blue-600/80">
+                      Select departments that students should be from.
+                    </FormDescription>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between border-blue-200 bg-blue-50/50 hover:bg-blue-100"
-                >
-                  {field.value?.length
-                    ? `${field.value.length} department${field.value.length > 1 ? "s" : ""} selected`
-                    : "Select departments"}
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between border-blue-200 bg-blue-50/50 hover:bg-blue-100"
+                          >
+                            {field.value?.length
+                              ? `${field.value.length} department${field.value.length > 1 ? "s" : ""} selected`
+                              : "Select departments"}
+                            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
 
-            <PopoverContent align="start" className="w-full p-2 bg-white border border-blue-200 rounded-md shadow-md">
-              <div className="max-h-60 overflow-y-auto space-y-2">
-                {DEPARTMENTS.map((department) => {
-                  const isSelected = field.value?.includes(department)
+                      <PopoverContent align="start" className="w-full p-2 bg-white border border-blue-200 rounded-md shadow-md">
+                        <div className="max-h-60 overflow-y-auto space-y-2">
+                          {DEPARTMENTS.map((department) => {
+                            const isSelected = field.value?.includes(department)
 
-                  return (
-                    <div
-                      key={department}
-                      onClick={() => {
-                        const currentValue = field.value || []
-                        field.onChange(
-                          isSelected
-                            ? currentValue.filter((d) => d !== department)
-                            : [...currentValue, department]
-                        )
-                      }}
-                      className="flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 cursor-pointer"
-                    >
-                      <Checkbox checked={isSelected} className="text-blue-600 border-blue-300" />
-                      <span className="text-gray-700">{department}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </PopoverContent>
-          </Popover>
+                            return (
+                              <div
+                                key={department}
+                                onClick={() => {
+                                  const currentValue = field.value || []
+                                  field.onChange(
+                                    isSelected
+                                      ? currentValue.filter((d) => d !== department)
+                                      : [...currentValue, department]
+                                  )
+                                }}
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 cursor-pointer"
+                              >
+                                <Checkbox checked={isSelected} className="text-blue-600 border-blue-300 data-[state=checked]:bg-blue-700 data-[state=checked]:border-blue-600" />
+                                <span className="text-gray-700">{department}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="grid gap-6 md:grid-cols-2">
                 <FormField
@@ -408,7 +540,7 @@ export default function NewProjectPage() {
                         </FormDescription>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-blue-600" />
                       </FormControl>
                     </FormItem>
                   )}
@@ -424,19 +556,12 @@ export default function NewProjectPage() {
                         <FormDescription className="text-blue-600/80">Provide LOR upon completion</FormDescription>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-blue-600" />
                       </FormControl>
                     </FormItem>
                   )}
                 />
               </div>
-              
-
-              {error && (
-                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
 
               <div className="flex gap-4">
                 <Button
@@ -453,15 +578,7 @@ export default function NewProjectPage() {
                   className="bg-blue-600 hover:bg-blue-700 text-white transition-colors flex justify-center items-center w-36"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    <div className="flex space-x-2 justify-center items-center">
-                      <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                    </div>
-                  ) : (
-                    "Create Project"
-                  )}
+                  {isSubmitting ? "Creating Project..." : "Create Project"}
                 </Button>
               </div>
             </form>

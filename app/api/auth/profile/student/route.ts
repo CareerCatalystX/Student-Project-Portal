@@ -88,7 +88,12 @@ export async function GET(req: NextRequest) {
                     select: {
                         id: true,
                         status: true,
-                        appliedAt: true
+                        appliedAt: true,
+                        project: {
+                            select: {
+                                title: true,
+                            }
+                        }
                     }
                 }
             }
