@@ -35,43 +35,6 @@ export function StudentProfile({
   className,
   ...props
 }: StudentProfileProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [cvUrl, setCvUrl] = useState(user?.cvUrl || "");
-  const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSave = async () => {
-    setIsSubmitting(true)
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) return null;
-      const result = cvSchema.safeParse(cvUrl);
-      if (!result.success) {
-        setError(result.error.issues[0].message);
-        return;
-      }
-
-      const response = await fetch("/api/auth/student/cvUpdate", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ cvUrl }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update CV URL");
-      }
-
-      // Reload the page to reflect changes
-      window.location.reload();
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
-    } finally {
-      setIsSubmitting(false)
-    }
-  };
 
   if (!user) return null;
 
@@ -191,55 +154,6 @@ export function StudentProfile({
                     <FileWarning className="h-20 w-20 text-gray-500" />
                     <p className="text-black text-md sm:text-xl">No CV uploaded yet.</p>
                   </div>
-                )}
-              </div>
-
-              <div>
-                {isEditing ? (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={cvUrl}
-                      onChange={(e) => setCvUrl(e.target.value)}
-                      className="w-full border rounded p-2 text-sm"
-                      placeholder="Enter Google Drive CV URL"
-                    />
-                    {error && <p className="text-red-600 text-sm">{error}</p>}
-                    <div className="flex space-x-2">
-                      <Button
-                        onClick={handleSave}
-                        className="bg-teal-600 text-white hover:bg-teal-700 w-24"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <div className="flex space-x-2 justify-center items-center">
-                            <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                            <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                            <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                          </div>
-                        ) : (
-                          "Save"
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setIsEditing(false);
-                          setError("");
-                        }}
-                        disabled={isSubmitting}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Button
-                    className="w-full bg-teal-600 text-white hover:bg-teal-700"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Edit CV URL
-                  </Button>
                 )}
               </div>
             </div>

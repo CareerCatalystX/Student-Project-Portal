@@ -12,22 +12,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, Clock, Lock } from "lucide-react";
+import { toast } from "sonner";
 
 
 
 // Function to check if the user is authenticated
 async function isAuthenticated() {
   try {
-    const token = localStorage.getItem("authToken");
-    if (!token) return false;
-
-    const response = await fetch("/api/auth/profile", {
+    const response = await fetch("/api/auth/profile/student", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
+      credentials: 'include'
     });
-
     return response.ok;
   } catch (err) {
     console.error("Authentication check failed:", err);
@@ -44,34 +42,13 @@ async function fetchProject(id: string) {
   return res.json();
 }
 
-// Function to enroll in a project
-async function enrollInProject(projectId: string) {
-  const token = localStorage.getItem("authToken");
-  if (!token) {
-    throw new Error("User is not authenticated");
-  }
-
-  const res = await fetch("/api/projects/enroll", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ projectId }),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to enroll");
-  }
-}
-
 export default function ApplyPage() {
   const params = useParams();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -103,26 +80,54 @@ export default function ApplyPage() {
     checkAuthenticationAndFetchData();
   }, [params?.id, router]);
 
-  const handleEnrollment = async () => {
+  async function handleEnrollment() {
     try {
+      setIsApplying(true);
       if (!project?.id) {
         throw new Error("Project ID is not available");
       }
 
-      await enrollInProject(project.id);
-      router.push("/student/enrollment-success");
+      const enrollProjectPromise = async () => {
+        const res = await fetch("/api/projects/enroll", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: 'include',
+          body: JSON.stringify({ projectId: project.id }),
+        });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || "Failed to enroll");
+        }
+        return res.json();
+      };
+
+      toast.promise(enrollProjectPromise(), {
+        loading: "Enrolling in project...",
+        success: () => {
+          router.push("/student/enrollment-success");
+          setIsApplying(false);
+          return "Project updated successfully.";
+        },
+        error: (err) => {
+          setIsApplying(false);
+          return err?.message;
+        },
+      });
     } catch (err: any) {
       console.error("Enrollment error:", err);
+      setIsApplying(false);
       setError(err.message || "Failed to enroll in the project.");
     }
-  };
+  }
 
   const isOutdated = project && new Date(project?.deadline) < new Date() && !project?.closed;
 
   if (loading || !authenticated) {
     return (
       <div className={cn("flex w-screen h-screen items-center justify-center bg-white")}>
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-black"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-teal-700"></div>
       </div>
     );
   }
@@ -132,25 +137,25 @@ export default function ApplyPage() {
       <div className={`w-screen min-h-screen flex items-center py-8 px-4 ${project?.closed ? "bg-gradient-to-b from-blue-600 to-blue-500 shadow-md shadow-blue-50" : isOutdated ? "bg-gradient-to-b from-yellow-600 to-yellow-500 shadow-md shadow-yellow-50" : "bg-gradient-to-b from-teal-600 to-teal-500 shadow-md shadow-teal-50"}`}>
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle className={`${project?.closed ? "text-blue-600": isOutdated ? "text-yello-600" : "text-teal-600"} text-lg`}>Error</CardTitle>
+            <CardTitle className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yello-600" : "text-teal-600"} text-lg`}>Error</CardTitle>
             <CardDescription className="flex items-center space-x-2">
-            {project?.closed ? (
-              <>
-                <Lock className="w-5 h-5 text-blue-600" />
-                <span>This project is closed and no longer accepting applications.</span>
-              </>
-            ) : isOutdated ? (
-              <>
-                <Clock className="w-5 h-5 text-yellow-600" />
-                <span>This project is outdated and no longer open for applications.</span>
-              </>
-            ) : (
-              <>
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-                <span>{error}</span>
-              </>
-            )}
-          </CardDescription>
+              {project?.closed ? (
+                <>
+                  <Lock className="w-5 h-5 text-blue-600" />
+                  <span>This project is closed and no longer accepting applications.</span>
+                </>
+              ) : isOutdated ? (
+                <>
+                  <Clock className="w-5 h-5 text-yellow-600" />
+                  <span>This project is outdated and no longer open for applications.</span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  <span>{error}</span>
+                </>
+              )}
+            </CardDescription>
 
           </CardHeader>
           <CardContent>
@@ -164,13 +169,13 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className={`w-screen min-h-screen py-8 px-4 ${project?.closed ? "bg-gradient-to-b from-blue-600 to-blue-500 shadow-md shadow-blue-50" : isOutdated? " bg-gradient-to-b from-yellow-600 to-yellow-500 shadow-md shadow-yellow-50" : "bg-gradient-to-b from-teal-600 to-teal-500 shadow-md shadow-teal-50"}`}>
+    <div className={`w-screen min-h-screen py-8 px-4 ${project?.closed ? "bg-gradient-to-b from-blue-600 to-blue-500 shadow-md shadow-blue-50" : isOutdated ? " bg-gradient-to-b from-yellow-600 to-yellow-500 shadow-md shadow-yellow-50" : "bg-gradient-to-b from-teal-600 to-teal-500 shadow-md shadow-teal-50"}`}>
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-600": "text-teal-600"} text-lg`}>Project Application</CardTitle>
+          <CardTitle className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-600" : "text-teal-600"} text-lg`}>Project Application</CardTitle>
           <CardDescription>
-            You are applying for the project: <span 
-              className={`font-semibold ${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-600" : "text-teal-600"}`}
+            You are applying for the project: <span
+              className={`font-semibold ${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-600" : "text-teal-600"}`}
             >
               {project?.title}
             </span>
@@ -179,17 +184,17 @@ export default function ApplyPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className= {`${project?.closed ? "border-blue-300" : isOutdated? "border-yellow-300" : "border-teal-300" } border rounded-lg p-4`}>
-              <h3 className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-700" : "text-teal-700"} font-medium mb-2`}>Project Details</h3>
+            <div className={`${project?.closed ? "border-blue-300" : isOutdated ? "border-yellow-300" : "border-teal-300"} border rounded-lg p-4`}>
+              <h3 className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-700" : "text-teal-700"} font-medium mb-2`}>Project Details</h3>
               <p className="text-sm text-muted-foreground mb-2">
                 {project?.description}
               </p>
               <div className="text-sm">
                 <p>
-                  <strong className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-700" : "text-teal-700"}`}>Professor:</strong> {project?.professorName}
+                  <strong className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-700" : "text-teal-700"}`}>Professor:</strong> {project?.professor?.user?.name}
                 </p>
                 <p>
-                  <strong className={`${project?.closed ? "text-blue-600" : isOutdated? "text-yellow-700" : "text-teal-700"}`}>Department:</strong> {project?.department}
+                  <strong className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-700" : "text-teal-700"}`}>Department:</strong> {project?.department}
                 </p>
               </div>
             </div>
@@ -209,7 +214,7 @@ export default function ApplyPage() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleEnrollment} className={`${project?.closed ? "bg-blue-300 text-blue-700 hover:text-white hover:bg-blue-600" : isOutdated? "bg-yellow-300 text-yellow-700 hover:text-white hover:bg-yellow-600" : "bg-teal-300 text-teal-700 hover:text-white hover:bg-teal-600"}`}>Apply for Project</Button>
+                <Button onClick={handleEnrollment} className={`${project?.closed ? "bg-blue-300 text-blue-700 hover:text-white hover:bg-blue-600" : isOutdated ? "bg-yellow-300 text-yellow-700 hover:text-white hover:bg-yellow-600" : "bg-teal-300 text-teal-700 hover:text-white hover:bg-teal-600"}`} disabled={isApplying}>{isApplying ? "Applying for Project..." : "Apply for Project"}</Button>
               </div>
             </div>
           </div>

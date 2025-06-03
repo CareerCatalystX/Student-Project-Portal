@@ -62,7 +62,13 @@ export async function GET(req: NextRequest, {params}: { params: Promise<{ id: st
                     select: {
                         id: true,
                         cvUrl: true,
-                        branch: true
+                        branch: true,
+                        user: {
+                            select: {
+                                name: true,
+                                email: true
+                            }
+                        }
                     },
                 },
                 project: {

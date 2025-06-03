@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import Image from "next/image"
 
 interface Project {
   id: string
@@ -338,18 +339,31 @@ function ProjectCard({
   return (
     <Card className={`flex h-full flex-col ${className}`}>
       <CardHeader>
-        <div className="space-y-2">
-          <CardTitle className="line-clamp-2">{project.title}</CardTitle>
-          <CardDescription>
-            {project.professor.name} • {project.professor.department}
-          </CardDescription>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              {project.category.name}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {project.college.name}
-            </Badge>
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <CardTitle className="line-clamp-2 flex-1 pb-2">{project.title}</CardTitle>
+            <CardDescription>
+              {project.professor.name} • {project.professor.department}
+            </CardDescription>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                {project.category.name}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {project.college.name}
+              </Badge>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {project.college.logo && (
+              <Image
+                src={project.college.logo}
+                alt={`${project.college.name} logo`}
+                className="object-contain rounded"
+                width={64}
+                height={64}
+              />
+            )}
           </div>
         </div>
       </CardHeader>
@@ -382,7 +396,7 @@ function ProjectCard({
           {project.skills && project.skills.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {project.skills.slice(0, 3).map((skill) => (
-                <Badge key={skill.id} variant="secondary" className={`text-xs ${project.closed ? "bg-transparent text-blue-600 hover:bg-blue-600 hover:text-white" : isOutdated ? "bg-transparent text-yellow-600 hover:bg-yellow-600 hover:text-white" : "bg-transparent text-teal-600 hover:bg-teal-600 hover:text-white"}`}>
+                <Badge variant="secondary" className={`text-xs ${project.closed ? "bg-transparent text-blue-600 hover:bg-blue-600 hover:text-white" : isOutdated ? "bg-transparent text-yellow-600 hover:bg-yellow-600 hover:text-white" : "bg-transparent text-teal-600 hover:bg-teal-600 hover:text-white"}`}>
                   {skill.name}
                 </Badge>
               ))}

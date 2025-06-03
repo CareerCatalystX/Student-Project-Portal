@@ -44,7 +44,6 @@ async function getAccessibleProjects(userId: string) {
             include: {
                 college: {
                     select: {
-                        id: true,
                         name: true,
                         logo: true
                     }
@@ -102,7 +101,7 @@ async function getAccessibleProjects(userId: string) {
                 collegeId: {
                     in: accessibleCollegeIds
                 },
-                closed: false, // Only show open projects
+                // closed: false, // Only show open projects
                 deadline: {
                     gte: new Date() // Only show projects with future deadlines
                 }
@@ -139,11 +138,6 @@ async function getAccessibleProjects(userId: string) {
                         id: true,
                         name: true
                     }
-                },
-                _count: {
-                    select: {
-                        applications: true
-                    }
                 }
             },
             orderBy: {
@@ -167,6 +161,7 @@ async function getAccessibleProjects(userId: string) {
                 id: project.id,
                 title: project.title,
                 description: project.description,
+                closed: project.closed,
                 duration: project.duration,
                 stipend: project.stipend,
                 deadline: project.deadline,
@@ -183,14 +178,11 @@ async function getAccessibleProjects(userId: string) {
                     department: project.professor.department
                 },
                 skills: project.skills.map(ps => ({
-                    id: ps.skill.id,
                     name: ps.skill.name
                 })),
                 category: project.catego0ry ? {
-                    id: project.catego0ry.id,
                     name: project.catego0ry.name
                 } : null,
-                applicationCount: project._count.applications
             }))
         };
 

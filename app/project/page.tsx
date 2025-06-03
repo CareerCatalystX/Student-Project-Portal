@@ -40,7 +40,7 @@ interface Project {
     name: string
   }
   applicationCount: number
-  closed?: boolean
+  closed: boolean
 }
 
 export default function Home() {

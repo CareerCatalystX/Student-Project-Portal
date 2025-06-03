@@ -26,13 +26,13 @@ export default function EnrollmentSuccessPage() {
   }, [timeLeft, router])
 
   return (
-    <div className="container mx-auto py-8 px-4 min-h-screen flex items-center justify-center">
+    <div className="py-8 px-4 min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-400 to-teal-600">
       <Card className="max-w-2xl w-full">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <CheckCircle className="h-16 w-16 text-teal-600" />
           </div>
-          <CardTitle className="text-2xl">Enrollment Successful!</CardTitle>
+          <CardTitle className="text-2xl text-teal-600">Enrollment Successful!</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center space-y-2">
@@ -49,7 +49,8 @@ export default function EnrollmentSuccessPage() {
           <div className="flex justify-center">
             <Button 
               onClick={() => router.push('/student/dashboard')}
-              className="gap-2"
+              variant="secondary"
+              className="gap-2 bg-teal-600 text-white"
             >
               Go to Dashboard Now
               <ArrowRight className="h-4 w-4" />
