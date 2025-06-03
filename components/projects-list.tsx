@@ -396,7 +396,7 @@ function ProjectCard({
           {project.skills && project.skills.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {project.skills.slice(0, 3).map((skill) => (
-                <Badge variant="secondary" className={`text-xs ${project.closed ? "bg-transparent text-blue-600 hover:bg-blue-600 hover:text-white" : isOutdated ? "bg-transparent text-yellow-600 hover:bg-yellow-600 hover:text-white" : "bg-transparent text-teal-600 hover:bg-teal-600 hover:text-white"}`}>
+                <Badge variant="secondary" key={skill.id} className={`text-xs ${project.closed ? "bg-transparent text-blue-600 hover:bg-blue-600 hover:text-white" : isOutdated ? "bg-transparent text-yellow-600 hover:bg-yellow-600 hover:text-white" : "bg-transparent text-teal-600 hover:bg-teal-600 hover:text-white"}`}>
                   {skill.name}
                 </Badge>
               ))}

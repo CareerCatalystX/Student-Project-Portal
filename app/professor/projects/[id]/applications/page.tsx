@@ -105,7 +105,7 @@ export default function ApplicationsPage() {
     } else {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, router]);
 
   // Get unique branches for filter
   const branches = useMemo(() => {

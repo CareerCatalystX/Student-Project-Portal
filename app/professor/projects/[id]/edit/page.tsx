@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useProjectData } from "@/contexts/categorySkillsContext"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -137,7 +136,7 @@ function ProjectForm({ id }: { id: string }) {
         setValue("duration", { number: parseInt(time), unit });
         setValue("stipend", project.stipend || 0);
         setValue("deadline", new Date(project.deadline).toISOString().split("T")[0]);
-        setValue("skills", project.skills?.map((s: { skill: { name: String; }; }) => s.skill.name) || []);
+        setValue("skills", project.skills?.map((s: { skill: { name: string; }; }) => s.skill.name) || []);
         setValue("department", project.department);
         setValue("categoryName", project.catego0ry?.name);
         setValue("numberOfStudentsNeeded", project.numberOfStudentsNeeded);
@@ -152,7 +151,7 @@ function ProjectForm({ id }: { id: string }) {
     }
 
     fetchProject();
-  }, [id, form]);
+  }, [id, form, router, setValue]);
 
   async function onSubmit(data: ProjectFormData) {
     setIsSubmitting(true)
