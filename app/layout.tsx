@@ -12,7 +12,7 @@ const poppinsFont = Poppins({
 
 // Metadata setup
 export const metadata: Metadata = {
-  title: "Career CatalystX",
+  title: "Career CatalystX - Match, Collaborate & Build",
   description: "Jigyasu",
   icons: {
     icon: "/favicon.ico",

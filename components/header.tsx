@@ -10,21 +10,13 @@ export default function Header() {
   const router = useRouter();
 
   return (
-    <header className="backdrop-blur-xl border-b border-blue-100 shadow-[10px_0_15px_rgba(37,99,235,0.6),20px_0_20px_rgba(128,0,128,0.5),30px_0_25px_rgba(37,99,235,0.4)] w-full z-50">
+    <header className="sticky top-0 backdrop-blur-lg bg-white/60 border-b border-blue-100 shadow-[10px_0_15px_rgba(37,99,235,0.6),20px_0_20px_rgba(128,0,128,0.5),30px_0_25px_rgba(37,99,235,0.4)] w-full z-50">
       <div className="flex h-16 items-center justify-between w-full px-6">
         {/* Logo or Title */}
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-8">
             <div className="flex items-center">
-              <Image src="/logo.png" alt="Logo" width={64} height={64} />
-              <div className="pb-1">
-                <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
-                  CareerCatalystX
-                </h1>
-                <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent text-center">
-                  Match. Collaborate. Build.
-                </p>
-              </div>
+              <Image src="/logo-master.png" alt="Logo" width={196} height={64} />
             </div>
 
             {/* Desktop Navigation (Visible only on MD+) */}
@@ -33,7 +25,7 @@ export default function Header() {
                 (item) => (
                   <p
                     key={item}
-                    className="hover:cursor-pointer font-light px-2 py-1 bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent"
+                    className="hover:cursor-pointer font-light px-2 py-1 bg-gradient-to-r from-purple-900 via-purple-600 to-purple-900 bg-clip-text text-transparent"
                     onClick={() => router.push(item === "Home" ? "/" : `/${item.toLowerCase()}`)}
                   >
                     {item}
@@ -43,8 +35,8 @@ export default function Header() {
             </nav>
           </div>
           <div className="hidden md:flex">
-            <Button variant="ghost" className="bg-gradient-to-r from-blue-950 via-blue-700 to-blue-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => { router.push("/login") }}>Log in</Button>
-            <Button variant="default" className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-700 hover:bg-gradient-to-r hover:from-blue-500 hover:via-blue-700 hover:to-blue-500" onClick={() => { router.push("/signup") }}>Sign up</Button>
+            <Button variant="ghost" className="bg-gradient-to-r font-light from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => { router.push("/student/login") }}>Log in</Button>
+            <Button variant="default" className="bg-gradient-to-r font-light from-purple-700 via-purple-500 to-purple-700 hover:bg-gradient-to-r hover:from-purple-500 hover:via-purple-700 hover:to-purple-500" onClick={() => { router.push("/student/signup") }}>Sign up</Button>
           </div>
         </div>
 
