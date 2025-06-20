@@ -4,6 +4,7 @@ import Header from "@/components/header";
 import Hero from "@/components/home";
 import { Typewriter } from "@/components/ui/typewriter";
 import Eight from "@/components/animata/bento-grid/eight";
+import Image from "next/image";
 
 function TimeDisplay() {
   const [time, setTime] = useState("");
@@ -66,12 +67,40 @@ export default function Home() {
           </div>
         </IosOgShellCard>
       ) : (
-        <main className="min-h-screen flex flex-col flex-grow bg-background w-full">
-          <Header />
-          <div className="w-full relative z-10">
-            <Hero />
+        <main className="min-h-screen flex flex-col flex-grow bg-background w-full relative">
+          <div className="relative z-10">
+            <Header />
           </div>
-          <Eight />
+          
+          <div className="w-full relative z-10">
+            {/* Background Image */}
+            <div className="absolute min-h-screen inset-0 z-0">
+              <Image
+                src="/bgHome.jpg"
+                alt="Background"
+                fill
+                className="object-cover"
+                priority
+                quality={90}
+              />
+            </div>
+            
+            {/* Hero Content */}
+            <div className="relative z-10">
+              <Hero />
+            </div>
+          </div>
+          
+          <div className="relative z-10 py-12 mx-12 max-h-fit">
+            <div className="bg-white-200/50 backdrop-blur-xl rounded-2xl shadow-xl shadow-white-300/30 border border-white/20 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-2xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent rounded-2xl animate-pulse"></div>
+              
+              <div className="relative z-10 py-12 px-24">
+                <Eight />
+              </div>
+            </div>
+          </div>
         </main>
       )}
     </>

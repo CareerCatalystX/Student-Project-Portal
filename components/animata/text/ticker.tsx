@@ -92,7 +92,7 @@ export default function Ticker({
         className,
       )}
     >
-      <div className="absolute inset-0 flex min-w-fit">
+      <div className="absolute inset-0 justify-end flex min-w-fit">
         {parts.map((part, index) => (
           <Number
             getHeight={getHeight}
