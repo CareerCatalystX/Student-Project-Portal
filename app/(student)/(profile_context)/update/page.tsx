@@ -89,7 +89,7 @@ export default function UpdateProfile() {
     // Handle redirects after hooks are called
     useEffect(() => {
         if (!loading && !profile) {
-            router.push("/student/login");
+            router.push("/login");
         }
     }, [loading, profile, router]);
 
@@ -162,7 +162,7 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
             success: () => {
                 setIsLoading(false);
                 refreshProfile();
-                router.push("/student/dashboard")
+                router.push("/")
                 return "Profile updated successfully.";
             },
             error: (err) => {

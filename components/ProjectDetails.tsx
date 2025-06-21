@@ -173,7 +173,7 @@ export default function ProjectPage({
                   asChild
                   className={`w-full ${closed ? "bg-blue-600 text-white hover:bg-blue-700" : isOutdated ? "bg-yellow-600 text-white hover:bg-yellow-700" : "bg-teal-600 text-white hover:bg-teal-700"} `}
                 >
-                  <Link href={`/student/apply/${id}`}>Apply for this Project</Link>
+                  <Link href={`/apply/${id}`}>Apply for this Project</Link>
                 </Button>
               </CardContent>
             </Card>

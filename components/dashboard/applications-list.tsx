@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Inbox } from 'lucide-react'
+import { Inbox } from 'lucide-react'
 import { Application } from "@/types/profile"
 import Link from "next/link"
 
@@ -18,11 +18,11 @@ interface ApplicationsListProps extends React.HTMLAttributes<HTMLDivElement> {
 export function ApplicationsList({ applications = [], className, ...props }: ApplicationsListProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
+      case "PENDING":
         return "bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25"
-      case "accepted":
+      case "ACCEPTED":
         return "bg-green-500/15 text-green-700 hover:bg-green-500/25"
-      case "rejected":
+      case "REJECTED":
         return "bg-red-500/15 text-red-700 hover:bg-red-500/25"
       default:
         return "bg-gray-500/15 text-gray-700 hover:bg-gray-500/25"

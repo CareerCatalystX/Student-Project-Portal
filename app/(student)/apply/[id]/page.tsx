@@ -56,7 +56,7 @@ export default function ApplyPage() {
       try {
         const isAuthenticate = await isAuthenticated();
         if (!isAuthenticate) {
-          router.push("/student/login");
+          router.push("/login");
           return;
         }
         setAuthenticated(true);
@@ -106,7 +106,7 @@ export default function ApplyPage() {
       toast.promise(enrollProjectPromise(), {
         loading: "Enrolling in project...",
         success: () => {
-          router.push("/student/enrollment-success");
+          router.push("/enrollment-success");
           setIsApplying(false);
           return "Project updated successfully.";
         },
@@ -159,7 +159,7 @@ export default function ApplyPage() {
 
           </CardHeader>
           <CardContent>
-            <Button variant="outline" onClick={() => router.push("/project")}>
+            <Button variant="outline" onClick={() => router.push("/projects")}>
               Back to Projects
             </Button>
           </CardContent>
@@ -209,7 +209,7 @@ export default function ApplyPage() {
               <div className="flex justify-end space-x-4">
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/project")}
+                  onClick={() => router.push("/projects")}
                   className="bg-red-300 text-red-700 hover:text-white hover:bg-red-600"
                 >
                   Cancel

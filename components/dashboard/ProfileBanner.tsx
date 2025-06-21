@@ -13,7 +13,7 @@ export function ProfileBanner() {
     <StickyBanner hideOnScroll={true} className="bg-gradient-to-b from-teal-500 to-blue-600">
       <p className="mx-0 max-w-[90%] text-white drop-shadow-md">
         A complete profile increases your chances of selection —{" "}
-        <Link href={"/student/update"} className="hover:underline">update yours now!</Link>
+        <Link href={"/update"} className="hover:underline">update yours now!</Link>
       </p>
     </StickyBanner>
   )

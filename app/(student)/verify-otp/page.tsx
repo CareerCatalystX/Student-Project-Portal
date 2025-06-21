@@ -73,7 +73,7 @@ function VerifyOTPForm() {
 
         const data = await response.json();
 
-        router.push("/student/dashboard");
+        router.push("/");
         return data;
       })(),
       {
@@ -94,7 +94,7 @@ function VerifyOTPForm() {
   async function handleResendOTP() {
     setIsLoading(true)
     try {
-      router.push("/student/login")
+      router.push("/login")
       // setCountdown(60)
     } catch (error) {
       console.error("Resend OTP error:", error)

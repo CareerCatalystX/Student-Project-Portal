@@ -105,7 +105,7 @@ function SignupForm() {
       loading: "Creating your account...",
       success: (data) => {
         setIsLoading(false);
-        router.push(`/student/verify-otp?email=${encodeURIComponent(values.email)}`);
+        router.push(`/verify-otp?email=${encodeURIComponent(values.email)}`);
         return "OTP sent to your email. Please verify to continue.";
       },
       error: (err) => {
@@ -309,7 +309,7 @@ function SignupForm() {
           <div className="text-sm text-teal-600/80">
             Already have an account?{" "}
             <Link
-              href="/student/login"
+              href="/login"
               className="text-teal-600 hover:text-teal-700 transition-colors font-medium hover:underline"
             >
               Sign in

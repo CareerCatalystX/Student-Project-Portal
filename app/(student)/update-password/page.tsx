@@ -104,7 +104,7 @@ function ResetPasswordContent() {
         if (data.role === "PROFESSOR") {
           router.push("/professor/login");
         } else {
-          router.push("/student/login");
+          router.push("/login");
         }
         return "Password updated."
       },
