@@ -49,6 +49,7 @@ export default function ApplyPage() {
   const [error, setError] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -82,6 +83,11 @@ export default function ApplyPage() {
 
   async function handleEnrollment() {
     try {
+      if (!coverLetter.trim()) {
+        toast.error("Please write a cover letter before applying.");
+        setIsApplying(false);
+        return;
+      }
       setIsApplying(true);
       if (!project?.id) {
         throw new Error("Project ID is not available");
@@ -94,7 +100,10 @@ export default function ApplyPage() {
             "Content-Type": "application/json",
           },
           credentials: 'include',
-          body: JSON.stringify({ projectId: project.id }),
+          body: JSON.stringify({ 
+            projectId: project.id, 
+            coverLetter: coverLetter 
+          }),
         });
         if (!res.ok) {
           const error = await res.json();
@@ -196,6 +205,21 @@ export default function ApplyPage() {
                 <p>
                   <strong className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-700" : "text-teal-700"}`}>Department:</strong> {project?.department}
                 </p>
+              </div>
+            </div>
+
+            <div className={`${project?.closed ? "border-blue-300" : isOutdated ? "border-yellow-300" : "border-teal-300"} border rounded-lg p-4`}>
+              <h3 className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-700" : "text-teal-700"} font-medium mb-2`}>Cover Letter</h3>
+              <textarea
+                value={coverLetter}
+                onChange={(e) => setCoverLetter(e.target.value)}
+                placeholder="Write your cover letter here (max 2000 characters)..."
+                maxLength={2000}
+                rows={8}
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <div className="text-right text-sm text-gray-600 mt-1">
+                {coverLetter.length}/2000 characters
               </div>
             </div>
 

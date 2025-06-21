@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, IndianRupee, Search, SlidersHorizontal, Users, Award, FileText, Check } from "lucide-react"
+import { Calendar, Clock, IndianRupee, Search, SlidersHorizontal, Users, Award, FileText, Check, ExternalLink } from "lucide-react"
 import { redirect } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -141,6 +141,14 @@ export function ProjectsList({ projects }: ProjectsListProps) {
     (project) => new Date(project.deadline) < currentDate && !project.closed,
   )
 
+  const handleClosedRedirect = () => {
+    window.open('/projects/closed', '_blank')
+  }
+
+  const handleOverdueRedirect = () => {
+    window.open('/projects/overdue', '_blank')
+  }
+
   return (
     <div className="w-full space-y-6">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-6 px-4">
@@ -267,6 +275,35 @@ export function ProjectsList({ projects }: ProjectsListProps) {
                         Clear Benefits Filter
                       </Button>
                     )}
+                    <div className="space-y-3">
+                      <h4 className="font-medium">Project Status</h4>
+                      <div className="space-y-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-between hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                          onClick={handleClosedRedirect}
+                        >
+                          <div className="flex items-center">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Closed Projects
+                          </div>
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-between hover:bg-yellow-50 hover:text-yellow-700 hover:border-yellow-300"
+                          onClick={handleOverdueRedirect}
+                        >
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-2" />
+                            Overdue Projects
+                          </div>
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </SheetContent>
@@ -275,7 +312,7 @@ export function ProjectsList({ projects }: ProjectsListProps) {
         </div>
       </div>
 
-      <div className="space-y-12">
+      <div className="">
         {/* Open Projects */}
         <div className="space-y-6 px-4">
           <div className="grid gap-6">
@@ -292,8 +329,7 @@ export function ProjectsList({ projects }: ProjectsListProps) {
         {/* Outdated Projects */}
         {outdatedProjects.length > 0 && (
           <div className="space-y-6 px-4">
-            <Separator />
-            <h2 className="text-xl font-semibold">Outdated Projects</h2>
+            <h2 className="text-xl font-semibold">Overdued Projects</h2>
             <div className="grid gap-6">
               {outdatedProjects.map((project) => (
                 <ProjectCard
@@ -309,7 +345,6 @@ export function ProjectsList({ projects }: ProjectsListProps) {
         {/* Closed Projects */}
         {closedProjects.length > 0 && (
           <div className="space-y-6">
-            <Separator />
             <h2 className="text-xl font-semibold px-4">Closed Projects</h2>
             <div className="grid gap-6 px-4">
               {closedProjects.map((project) => (
@@ -427,7 +462,7 @@ function ProjectCard({
           <Button
             className={`w-full ${project.closed ? "bg-blue-600 text-white hover:bg-blue-700" : isOutdated ? "bg-yellow-600 text-white hover:bg-yellow-700" : "bg-teal-600 text-white hover:bg-teal-700"}`}
             variant="default"
-            onClick={() => redirect(`/project/${project.id}`)}
+            onClick={() => redirect(`/projects/${project.id}`)}
           >
             View Details
           </Button>

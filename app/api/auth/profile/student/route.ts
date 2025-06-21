@@ -56,8 +56,9 @@ export async function GET(req: NextRequest) {
                             }
                         },
                         subscriptions: {
-                            orderBy: { startedAt: 'desc' },
+                            orderBy: { endsAt: 'desc' },
                             select: {
+                                id: true,
                                 planId: true,
                                 status: true,
                                 startedAt: true,
@@ -103,7 +104,52 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: 'Student not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Student profile fetched successfully', student }, { status: 200 });
+        // Check if topmost subscription is expired and update if needed
+        const currentDate = new Date();
+        if (student.user.subscriptions && student.user.subscriptions.length > 0) {
+            const latestSubscription = student.user.subscriptions[0];
+            
+            if (latestSubscription.status === 'ACTIVE' && new Date(latestSubscription.endsAt) < currentDate) {
+                await prisma.subscription.update({
+                    where: {
+                        id: latestSubscription.id
+                    },
+                    data: {
+                        status: 'EXPIRED'
+                    }
+                });
+            }
+        }
+
+        // Prepare response data
+        const responseData = {
+            isUpdated: student.isUpdated,
+            year: student.year,
+            branch: student.branch,
+            cvUrl: student.cvUrl,
+            bio: student.bio,
+            gpa: student.gpa,
+            user: {
+                name: student.user.name,
+                email: student.user.email,
+                role: student.user.role,
+                college: student.user.college,
+                subscriptions: student.user.subscriptions.filter(sub => sub.status === 'ACTIVE').map(sub => ({
+                    planId: sub.planId,
+                    status: sub.status,
+                    startedAt: sub.startedAt,
+                    endsAt: sub.endsAt,
+                    plan: sub.plan
+                }))
+            },
+            skills: student.skills,
+            applications: student.applications
+        };
+
+        return NextResponse.json({ 
+            message: 'Student profile fetched successfully', 
+            student: responseData 
+        }, { status: 200 });
     } catch (error: any) {
         console.error('Error fetching student profile:', error.message);
         return NextResponse.json({ message: error.message || 'Internal server error' }, { status: 500 });

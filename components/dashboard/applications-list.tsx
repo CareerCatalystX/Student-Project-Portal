@@ -64,7 +64,7 @@ export function ApplicationsList({ applications = [], className, ...props }: App
             ))
           )}
           <Button variant="outline" className="w-full text-teal-600 hover:text-teal-600" asChild>
-            <Link href="/project">Browse Projects</Link>
+            <Link href="/projects">Browse Projects</Link>
           </Button>
         </div>
       </CardContent>

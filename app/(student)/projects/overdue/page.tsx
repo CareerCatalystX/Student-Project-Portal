@@ -68,7 +68,7 @@ export default function Home() {
 
     const getProjects = async () => {
       try {
-        const response = await fetch("/api/projects/list", {
+        const response = await fetch("/api/projects/list/overdue", {
           method: "GET",
           credentials: "include"
         });
