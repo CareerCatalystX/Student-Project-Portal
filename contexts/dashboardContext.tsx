@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       })
 
       if (!response.ok) {
-        router.push("/student/login")
+        router.push("/login")
         return
       }
 
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       hasInitialized.current = true
       setShouldRefetch(false)
     } catch (err) {
-      router.push("/student/login")
+      router.push("/login")
     } finally {
       setLoading(false)
     }

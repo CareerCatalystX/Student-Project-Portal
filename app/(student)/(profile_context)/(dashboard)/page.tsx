@@ -11,16 +11,16 @@ export default function DashboardPage() {
   const { profile, loading } = useAuth()
   const router = useRouter()
 
-  if (loading) {
+  if (loading || !profile) {
+    if (!profile && !loading) {
+      router.push("/login");
+    }
+    
     return (
       <div className={cn("flex h-screen w-screen items-center justify-center bg-white")}>
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-teal-700"></div>
       </div>
     )
-  }
-
-  if(!profile){
-    router.push("/student/login")
   }
 
   return (

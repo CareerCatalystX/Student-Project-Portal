@@ -1,7 +1,7 @@
 "use client" 
 import { Toaster } from "@/components/ui/sonner" 
 import { AuthProvider } from "@/contexts/dashboardContext"; 
- 
+
 export default function RootLayout({ children }: Readonly<{ 
     children: React.ReactNode; 
 }>) { 

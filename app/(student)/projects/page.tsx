@@ -93,18 +93,10 @@ export default function Home() {
       <header className="border-b border-teal-100 bg-white shadow-sm shadow-teal-200 w-full">
         <div className="flex h-16 items-center justify-between w-full px-4">
           <div className="flex items-center">
-            <Image src="/logo.png" alt="Logo" width={64} height={64} />
-            <div className="pb-1">
-              <h1 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-blue-900 via-blue-600 to-blue-900 bg-clip-text text-transparent">
-                CareerCatalystX
-              </h1>
-              <p className="text-xs bg-gradient-to-r from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent text-center">
-                Match. Collaborate. Build.
-              </p>
-            </div>
+            <Image src="/logo-master.png" alt="Logo" width={196} height={64} />
           </div>
           <div className="flex gap-4">
-            <Button variant="default" onClick={() => router.push("/student/dashboard")} className="bg-teal-100 text-teal-900 hover:bg-teal-600 hover:text-white">
+            <Button variant="default" onClick={() => router.push("/")} className="bg-teal-100 text-teal-900 hover:bg-teal-600 hover:text-white">
               Back
             </Button>
           </div>

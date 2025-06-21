@@ -35,8 +35,8 @@ export default function Header() {
             </nav>
           </div>
           <div className="hidden md:flex">
-            <Button variant="ghost" className="bg-gradient-to-r font-light from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => { router.push("/student/login") }}>Log in</Button>
-            <Button variant="default" className="bg-gradient-to-r font-light from-purple-700 via-purple-500 to-purple-700 hover:bg-gradient-to-r hover:from-purple-500 hover:via-purple-700 hover:to-purple-500" onClick={() => { router.push("/student/signup") }}>Sign up</Button>
+            <Button variant="ghost" className="bg-gradient-to-r font-light from-purple-950 via-purple-700 to-purple-950 bg-clip-text text-transparent hover:text-transparent" onClick={() => { router.push("/login") }}>Log in</Button>
+            <Button variant="default" className="bg-gradient-to-r font-light from-purple-700 via-purple-500 to-purple-700 hover:bg-gradient-to-r hover:from-purple-500 hover:via-purple-700 hover:to-purple-500" onClick={() => { router.push("/signup") }}>Sign up</Button>
           </div>
         </div>
 

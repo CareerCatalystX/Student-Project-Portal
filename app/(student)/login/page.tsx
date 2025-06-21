@@ -76,7 +76,7 @@ function LoginForm() {
     toast.promise(loginPromise(), {
       loading: "Logging you in...",
       success: (data) => {
-        router.push(`/student/verify-otp?email=${encodeURIComponent(values.email)}`)
+        router.push(`/verify-otp?email=${encodeURIComponent(values.email)}`)
         setIsLoading(false)
         return "OTP sent to your email. Please verify to continue."
       },
@@ -175,7 +175,7 @@ function LoginForm() {
           <div className="flex flex-col gap-2 text-sm text-teal-600/80 w-full">
             <div className="flex flex-col gap-1 lg:flex-row lg:justify-between">
               <Link
-                href="/student/forgot-password"
+                href="/forgot-password"
                 className="text-center hover:text-teal-700 transition-colors hover:underline"
               >
                 Forgot your password?
@@ -183,7 +183,7 @@ function LoginForm() {
               <div className="flex items-center gap-1 justify-center">
                 <span>Don&apos;t have an account?</span>
                 <Link
-                  href="/student/signup"
+                  href="/signup"
                   className="text-teal-600 hover:text-teal-700 transition-colors font-medium hover:underline"
                 >
                   Sign up

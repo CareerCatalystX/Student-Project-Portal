@@ -14,7 +14,7 @@ export default function EnrollmentSuccessPage() {
 
   useEffect(() => {
     if (timeLeft === 0) {
-      router.push('/student/dashboard')
+      router.push('/')
       return
     }
     const timer = setInterval(() => {
@@ -48,7 +48,7 @@ export default function EnrollmentSuccessPage() {
 
           <div className="flex justify-center">
             <Button 
-              onClick={() => router.push('/student/dashboard')}
+              onClick={() => router.push('/')}
               variant="secondary"
               className="gap-2 bg-teal-600 text-white"
             >
