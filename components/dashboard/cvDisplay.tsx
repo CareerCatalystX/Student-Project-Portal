@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ChevronLeft, ChevronRight, FileWarning } from 'lucide-react';
+import { Button } from '../ui/button';
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -61,25 +62,25 @@ const CVDisplay: React.FC<CVDisplayProps> = ({ user }) => {
                 {user.cvUrl ? (
                     <div className="flex flex-col h-full">
                         {/* PDF Controls */}
-                        <div className="flex items-center justify-between p-3 bg-gray-50 border-b rounded-t">
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={goToPrevPage}
+                        <div className="flex items-center justify-end p-3 rounded-t">
+                            <div className="flex items-center gap-2 text-sm">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
                                     disabled={pageNumber <= 1}
-                                    className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </button>
-                                <span className="text-sm font-medium">
-                                    {numPages > 0 ? `${pageNumber} / ${numPages}` : 'Loading...'}
-                                </span>
-                                <button
-                                    onClick={goToNextPage}
+                                    Previous
+                                </Button>
+                                <span>{pageNumber} / {numPages}</span>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
                                     disabled={pageNumber >= numPages}
-                                    className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <ChevronRight className="h-4 w-4" />
-                                </button>
+                                    Next
+                                </Button>
                             </div>
                         </div>
 
@@ -96,7 +97,7 @@ const CVDisplay: React.FC<CVDisplayProps> = ({ user }) => {
                                     onLoadError={onDocumentLoadError}
                                     loading={
                                         <div className="flex items-center justify-center p-8">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
                                             <span className="ml-2 text-gray-600">Loading PDF...</span>
                                         </div>
                                     }
