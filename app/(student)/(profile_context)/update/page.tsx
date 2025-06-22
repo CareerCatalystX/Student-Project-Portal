@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, UseFormReturn } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -122,6 +122,8 @@ interface UpdateProfileFormProps {
 
 function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfileFormProps) {
     const [isLoading, setIsLoading] = useState(false);
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const departments = [
         "Computer Science",
         "Electrical",
@@ -133,10 +135,57 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
     ];
     const router = useRouter();
 
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.type !== 'application/pdf') {
+                toast.error('Please select a PDF file');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                toast.error('File size must be less than 10MB');
+                return;
+            }
+            setSelectedFile(file);
+        }
+    };
+
+    const uploadToCloudinary = async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/auth/student/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        return data.url;
+    };
+
     // Form submission handler
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
+
         const updatePromise = async () => {
+            let finalCvUrl = values.cvUrl;
+
+            // Upload file to Cloudinary if selected
+            if (selectedFile) {
+                setUploadingFile(true);
+                try {
+                    finalCvUrl = await uploadToCloudinary(selectedFile);
+                } catch (error) {
+                    throw new Error('Failed to upload CV file');
+                } finally {
+                    setUploadingFile(false);
+                }
+            }
+
             const response = await fetch("/api/auth/student/update", {
                 method: "PUT",
                 credentials: "include",
@@ -145,6 +194,7 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
                 },
                 body: JSON.stringify({
                     ...values,
+                    cvUrl: finalCvUrl, // Use uploaded URL or provided URL
                     year: parseInt(values.year, 10),
                 })
             });
@@ -158,7 +208,7 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
         };
 
         toast.promise(updatePromise(), {
-            loading: "Updating your profile...",
+            loading: uploadingFile ? "Uploading CV..." : "Updating your profile...",
             success: () => {
                 setIsLoading(false);
                 refreshProfile();
@@ -276,19 +326,24 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
                                     name="cvUrl"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-teal-600">CV Link</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="url"
-                                                    placeholder="Enter CV url"
-                                                    {...field}
-                                                    disabled={isLoading}
-                                                    className="border-teal-200 focus:border-teal-400 focus:ring-teal-400 bg-teal-50/50"
-                                                />
-                                            </FormControl>
-                                            <FormDescription className="text-teal-600/70">
-                                                Provide the link to your CV
-                                            </FormDescription>
+                                            <FormLabel className="text-teal-600">CV</FormLabel>
+                                            <div className="space-y-3">
+                                                {/* File Upload Option */}
+                                                <div>
+                                                    <Input
+                                                        type="file"
+                                                        accept=".pdf"
+                                                        onChange={handleFileSelect}
+                                                        disabled={isLoading || uploadingFile}
+                                                        className="border-teal-200 focus:border-teal-400 focus:ring-teal-400 bg-teal-50/50"
+                                                    />
+                                                    {selectedFile && (
+                                                        <p className="text-sm text-teal-600 mt-1">
+                                                            Selected: {selectedFile.name}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
                                             <FormMessage className="text-red-500" />
                                         </FormItem>
                                     )}
@@ -323,9 +378,9 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
                                 <Button
                                     type="submit"
                                     className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors flex justify-center items-center mt-6"
-                                    disabled={isLoading}
+                                    disabled={isLoading || uploadingFile}
                                 >
-                                    {isLoading ? "Updating Profile..." : "Update Profile"}
+                                    {uploadingFile ? "Uploading CV..." : isLoading ? "Updating Profile..." : "Update Profile"}
                                 </Button>
                             </div>
                         </form>

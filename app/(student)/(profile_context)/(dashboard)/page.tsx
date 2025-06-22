@@ -1,5 +1,4 @@
 "use client"
-import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { StudentProfile } from "@/components/dashboard/student-profile"
@@ -15,7 +14,7 @@ export default function DashboardPage() {
     if (!profile && !loading) {
       router.push("/login");
     }
-    
+
     return (
       <div className={cn("flex h-screen w-screen items-center justify-center bg-white")}>
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-teal-700"></div>
@@ -31,13 +30,13 @@ export default function DashboardPage() {
           <h2 className="text-3xl font-bold tracking-tight text-teal-700">Student Dashboard</h2>
         </div>
         <div className="grid gap-4">
-          <StudentProfile 
-            className="" 
-            user={profile} 
+          <StudentProfile
+            className=""
+            user={profile}
           />
-          <ApplicationsList 
-            className="= h-fit bg-gradient-to-t from-teal-500 to-teal-600" 
-            applications={profile?.applications} 
+          <ApplicationsList
+            className="h-fit bg-gradient-to-t from-teal-500 to-teal-600"
+            applications={profile?.applications}
           />
         </div>
       </div>
