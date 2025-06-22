@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, FileWarning } from 'lucide-react';
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
+    'pdfjs-dist/build/pdf.worker.min.mjs',
     import.meta.url,
 ).toString();
 
