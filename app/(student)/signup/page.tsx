@@ -104,6 +104,7 @@ function SignupForm() {
     toast.promise(signupPromise(), {
       loading: "Creating your account...",
       success: (data) => {
+        localStorage.setItem('otpStartTime', Date.now().toString())
         setIsLoading(false);
         router.push(`/verify-otp?email=${encodeURIComponent(values.email)}`);
         return "OTP sent to your email. Please verify to continue.";

@@ -31,7 +31,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
       });
 
       if (response.ok) {
-        router.push("/");
+        window.location.reload();
       } else {
         console.error('Logout failed');
         router.push("/");

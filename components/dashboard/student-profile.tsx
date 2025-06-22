@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,28 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { User, Mail, School, GraduationCap, Inbox, FileWarning, AlignLeft, Gauge, Wrench, BadgeCheck } from "lucide-react";
-import { z } from "zod";
+import { User, Mail, School, GraduationCap, AlignLeft, Gauge, Wrench, BadgeCheck } from "lucide-react";
 import { StudentProfile as StudentProfileType } from "@/types/profile";
+import CVDisplay from "./cvDisplay";
 
 interface StudentProfileProps extends React.HTMLAttributes<HTMLDivElement> {
   user: StudentProfileType | null;
 }
 
-const cvSchema = z
-  .string()
-  .min(1, "CV link is required")
-  .regex(
-    /^https?:\/\/(?:www\.)?drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([-\w]{25,})(?:\/view|\/preview)?(?:\?.*)?$/,
-    "Invalid Google Drive link"
-  );
-
-const getGoogleDriveEmbedUrl = (url: string): string | null => {
-  const match = url.match(
-    /^https?:\/\/(?:www\.)?drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([-\w]{25,})/
-  );
-  return match ? `https://drive.google.com/file/d/${match[1]}/preview` : null;
-};
 
 export function StudentProfile({
   user,
@@ -39,7 +23,7 @@ export function StudentProfile({
   if (!user) return null;
 
   return (
-    <div className="h-screen">
+    <div className="h-fit">
       <Card className="bg-gradient-to-t from-white to-teal-50 shadow-md shadow-teal-50 h-full flex flex-col" {...props}>
         <CardHeader>
           <CardTitle>Student Profile</CardTitle>
@@ -129,34 +113,7 @@ export function StudentProfile({
             </div>
 
             {/* Right: CV Section */}
-            <div className="flex-1 flex flex-col justify-between gap-4 h-full">
-              <div className="flex-grow flex items-center justify-center">
-                {user.cvUrl ? (
-                  (() => {
-                    const embedUrl = getGoogleDriveEmbedUrl(user.cvUrl!);
-                    return embedUrl ? (
-                      <div className="aspect-[4/3] h-full w-full relative">
-                        <iframe
-                          src={embedUrl}
-                          className="absolute inset-0 w-full h-full border rounded"
-                          title="Student CV"
-                          allow="autoplay"
-                        />
-                      </div>
-                    ) : (
-                      <div className="text-yellow-600 text-sm">
-                        Invalid Google Drive URL format. Please ensure the CV is shared with proper permissions.
-                      </div>
-                    );
-                  })()
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-4 py-18 sm:py-11">
-                    <FileWarning className="h-20 w-20 text-gray-500" />
-                    <p className="text-black text-md sm:text-xl">No CV uploaded yet.</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <CVDisplay user={user} />
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const drivePattern = /^https?:\/\/(?:www\.)?drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([-\w]{25,})(?:\/view|\/preview)?(?:\?.*)?$/;
+const cloudinaryPattern = /^https:\/\/res\.cloudinary\.com\//;
 
 export const studentSignupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -26,8 +26,8 @@ export const verifyOTPSchema = z.object({
 export const completeProfileSchema = z.object({
   year: z.number().min(2000, 'Study year is required'),
   branch: z.string().min(1, 'Branch/department is required'),
-  cvUrl: z.string().url().refine((cvUrl) => drivePattern.test(cvUrl), {
-    message: "Invalid Google Drive link. Please use the format 'https://drive.google.com/...'"
+  cvUrl: z.string().url().refine((cvUrl) => cloudinaryPattern.test(cvUrl), {
+    message: "Unable to upload. Contact: support@carrercatalystx.com"
   }),
   bio: z.string().min(5, 'Bio is required Min(5 Ch.)'),
   gpa: z.number().refine((val) =>

@@ -1,4 +1,4 @@
-// /app/api/projects/list/route.ts
+// /app/api/projects/list/closed/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
@@ -101,7 +101,7 @@ async function getAccessibleProjects(userId: string) {
                 collegeId: {
                     in: accessibleCollegeIds
                 },
-                closed: false, // Only show open projects
+                closed: true, // only closed projects 
                 deadline: {
                     gte: new Date() // Only show projects with future deadlines
                 }

@@ -55,7 +55,7 @@ export default function ProjectPage({
             variant="ghost"
             className={`mb-4 ${closed ? "text-blue-600 bg-blue-100 hover:bg-blue-600 hover:text-white" : isOutdated ? "text-yellow-600 bg-yellow-100 hover:bg-yellow-600 hover:text-white" : "text-teal-600 bg-teal-100 hover:bg-teal-600 hover:text-white"} `}
           >
-            <Link href={`/project`} className="flex items-center gap-2">
+            <Link href={`/projects`} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Projects
             </Link>
