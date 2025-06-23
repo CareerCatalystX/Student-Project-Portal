@@ -50,7 +50,7 @@ export default function EnrollmentSuccessPage() {
             <Button 
               onClick={() => router.push('/')}
               variant="secondary"
-              className="gap-2 bg-teal-600 text-white"
+              className="gap-2 bg-teal-600 hover:bg-teal-700 text-white"
             >
               Go to Dashboard Now
               <ArrowRight className="h-4 w-4" />

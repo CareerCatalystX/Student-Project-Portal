@@ -45,11 +45,14 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
       <div className="flex h-14 items-center justify-between">
-        <div className="mr-4 flex items-center">
+        <div className="mr-4 flex items-center gap-4">
           <Link href={"/"}>
             <div className="flex items-center">
               <Image src="/logo-master.png" alt="Logo" width={196} height={64} />
             </div>
+          </Link>
+          <Link href={"/projects"}>
+            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-purple-900 via-purple-600 to-purple-900 bg-clip-text text-transparent">Projects</p>
           </Link>
         </div>
 
