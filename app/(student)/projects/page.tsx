@@ -46,8 +46,64 @@ interface Project {
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadedProjectIds, setLoadedProjectIds] = useState<Set<string>>(new Set());
   const router = useRouter();
+
+  const filterDuplicateProjects = (newProjects: Project[], existingIds: Set<string>) => {
+    return newProjects.filter(project => !existingIds.has(project.id));
+  };
+
+  const loadMoreProjects = async () => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    try {
+      const url = `/api/projects/list?limit=10${nextCursor ? `&cursor=${nextCursor}` : ''}`;
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include"
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch more projects");
+
+      const data = await response.json();
+
+      // Filter out duplicates
+      const uniqueNewProjects = filterDuplicateProjects(data.projects, loadedProjectIds);
+
+      if (uniqueNewProjects.length > 0) {
+        setProjects(prev => [...prev, ...uniqueNewProjects]);
+
+        // Update loaded project IDs
+        const newIds = new Set<string>([...loadedProjectIds, ...uniqueNewProjects.map(p => p.id as string)]);
+        setLoadedProjectIds(newIds);
+      }
+
+      setNextCursor(data.nextCursor);
+      setHasMore(data.hasMore);
+    } catch (err) {
+      console.error("Error loading more projects:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Scroll event handler
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || loadingMore) {
+        return;
+      }
+      loadMoreProjects();
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore, nextCursor]);
 
   // Function to check if the user is authenticated
   async function isAuthenticated() {
@@ -68,7 +124,7 @@ export default function Home() {
 
     const getProjects = async () => {
       try {
-        const response = await fetch("/api/projects/list", {
+        const response = await fetch("/api/projects/list?limit=10", {
           method: "GET",
           credentials: "include"
         });
@@ -76,7 +132,14 @@ export default function Home() {
           throw new Error("Failed to fetch projects");
         }
         const data = await response.json();
+
+        // Set initial projects and track their IDs
         setProjects(data.projects);
+        const initialIds = new Set<string>(data.projects.map((p: Project) => p.id as string));
+        setLoadedProjectIds(initialIds);
+
+        setNextCursor(data.nextCursor);
+        setHasMore(data.hasMore);
       } catch (err) {
         console.error("Error fetching projects:", err);
         setError("Failed to fetch projects. Please try again later.");
@@ -110,7 +173,14 @@ export default function Home() {
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : projects.length > 0 ? (
-          <ProjectsList projects={projects} />
+          <>
+            <ProjectsList projects={projects} />
+            {loadingMore && (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-teal-600"></div>
+              </div>
+            )}
+          </>
         ) : (
           <NoProjects />
         )}

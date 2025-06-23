@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, Clock, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 
 
 
@@ -52,6 +55,30 @@ export default function ApplyPage() {
   const [coverLetter, setCoverLetter] = useState("");
   const router = useRouter();
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: 'Write your cover letter here...',
+      }),
+    ],
+    content: coverLetter,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      const plainText = editor.getText();
+      if (plainText.length <= 2000) {
+        setCoverLetter(html);
+      }
+    },
+  });
+
+  // Update editor content when coverLetter changes
+  useEffect(() => {
+    if (editor && editor.getHTML() !== coverLetter) {
+      editor.commands.setContent(coverLetter);
+    }
+  }, [editor, coverLetter]);
+
   useEffect(() => {
     const checkAuthenticationAndFetchData = async () => {
       try {
@@ -83,8 +110,15 @@ export default function ApplyPage() {
 
   async function handleEnrollment() {
     try {
-      if (!coverLetter.trim()) {
+      const plainTextContent = coverLetter.replace(/<[^>]*>/g, '').trim();
+      if (!plainTextContent) {
         toast.error("Please write a cover letter before applying.");
+        setIsApplying(false);
+        return;
+      }
+
+      if (plainTextContent.length > 2000) {
+        toast.error("Cover letter must be less than 2000 characters.");
         setIsApplying(false);
         return;
       }
@@ -100,9 +134,9 @@ export default function ApplyPage() {
             "Content-Type": "application/json",
           },
           credentials: 'include',
-          body: JSON.stringify({ 
-            projectId: project.id, 
-            coverLetter: coverLetter 
+          body: JSON.stringify({
+            projectId: project.id,
+            coverLetter: coverLetter
           }),
         });
         if (!res.ok) {
@@ -210,16 +244,63 @@ export default function ApplyPage() {
 
             <div className={`${project?.closed ? "border-blue-300" : isOutdated ? "border-yellow-300" : "border-teal-300"} border rounded-lg p-4`}>
               <h3 className={`${project?.closed ? "text-blue-600" : isOutdated ? "text-yellow-700" : "text-teal-700"} font-medium mb-2`}>Cover Letter</h3>
-              <textarea
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                placeholder="Write your cover letter here (max 2000 characters)..."
-                maxLength={2000}
-                rows={8}
-                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-              <div className="text-right text-sm text-gray-600 mt-1">
-                {coverLetter.length}/2000 characters
+
+              {/* Toolbar */}
+              {editor && (
+                <div className="border border-gray-300 rounded-t-lg bg-gray-50 p-2 flex gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={`px-3 py-1 rounded text-sm font-medium ${editor.isActive('bold')
+                      ? 'bg-teal-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                  >
+                    Bold
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={`px-3 py-1 rounded text-sm font-medium ${editor.isActive('italic')
+                      ? 'bg-teal-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                  >
+                    Italic
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    className={`px-3 py-1 rounded text-sm font-medium ${editor.isActive('bulletList')
+                      ? 'bg-teal-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                  >
+                    Bullet List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    className={`px-3 py-1 rounded text-sm font-medium ${editor.isActive('orderedList')
+                      ? 'bg-teal-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                  >
+                    Numbered List
+                  </button>
+                </div>
+              )}
+
+              {/* Editor */}
+              <div className="border border-gray-300 border-t-0 rounded-b-lg min-h-[200px] p-3 bg-white">
+                <EditorContent
+                  editor={editor}
+                  className="prose prose-sm max-w-none focus:outline-none"
+                />
+              </div>
+
+              <div className="text-right text-sm text-gray-600 mt-2">
+                {editor ? editor.getText().length : 0}/2000 characters
               </div>
             </div>
 

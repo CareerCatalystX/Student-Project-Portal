@@ -26,17 +26,17 @@ async function authenticateStudent(req: NextRequest) {
             throw new Error('Access forbidden: Students only');
         }
 
-        return { 
-            id: decoded.id, 
+        return {
+            id: decoded.id,
             collegeId: decoded.collegeId,
-            studentId: decoded.studentId 
+            studentId: decoded.studentId
         };
     } catch (error) {
         throw new Error('Invalid or expired token');
     }
 }
 
-async function getAccessibleProjects(userId: string) {
+async function getAccessibleProjects(userId: string, cursor: string | null = null, limit: number = 10) {
     try {
         // Get user with their subscriptions and college info
         const user = await prisma.user.findUnique({
@@ -77,7 +77,7 @@ async function getAccessibleProjects(userId: string) {
 
         // Check if user has any active paid subscriptions
         const hasActivePaidSubscription = user.subscriptions.some(
-            sub => sub.plan.billingCycle !== 'FREE' && sub.status === 'ACTIVE'
+            (sub: { plan: { billingCycle: string; }; status: string; }) => sub.plan.billingCycle !== 'FREE' && sub.status === 'ACTIVE'
         );
 
         let accessibleCollegeIds: string[] = [];
@@ -85,9 +85,9 @@ async function getAccessibleProjects(userId: string) {
         if (hasActivePaidSubscription) {
             // User has paid plan - get accessible colleges from all active subscriptions
             const allAccessibleColleges = user.subscriptions.flatMap(
-                sub => sub.plan.accessibleColleges.map(college => college.id)
+                (sub: { plan: { accessibleColleges: any[]; }; }) => sub.plan.accessibleColleges.map(college => college.id)
             );
-            
+
             // Remove duplicates and add user's own college
             accessibleCollegeIds = [...new Set([...allAccessibleColleges, user.collegeId])];
         } else {
@@ -95,17 +95,27 @@ async function getAccessibleProjects(userId: string) {
             accessibleCollegeIds = [user.collegeId];
         }
 
-        // Get projects from accessible colleges
-        const projects = await prisma.project.findMany({
-            where: {
-                collegeId: {
-                    in: accessibleCollegeIds
-                },
-                closed: false, // Only show open projects
-                deadline: {
-                    gte: new Date() // Only show projects with future deadlines
-                }
+        // Build where clause with cursor
+        const whereClause: any = {
+            collegeId: {
+                in: accessibleCollegeIds
             },
+            closed: false,
+            deadline: {
+                gte: new Date()
+            }
+        };
+
+        // Add cursor condition for pagination
+        if (cursor) {
+            whereClause.id = {
+                lt: cursor // Get projects with ID less than cursor (for desc order)
+            };
+        }
+
+        // Get projects with one extra to check if there are more
+        const projects = await prisma.project.findMany({
+            where: whereClause,
             include: {
                 college: {
                     select: {
@@ -142,8 +152,16 @@ async function getAccessibleProjects(userId: string) {
             },
             orderBy: {
                 createdAt: 'desc'
-            }
+            },
+            take: limit + 1 ,// Get one extra to determine if there are more
+            distinct: ['id']
         });
+
+        // Check if there are more projects
+        const hasMore = projects.length > limit;
+        const projectsToReturn = hasMore ? projects.slice(0, limit) : projects;
+        const nextCursor = hasMore ? projectsToReturn[projectsToReturn.length - 1].id : null;
+
 
         return {
             userInfo: {
@@ -157,7 +175,9 @@ async function getAccessibleProjects(userId: string) {
                 }))
             },
             accessibleCollegeIds,
-            projects: projects.map(project => ({
+            hasMore,
+            nextCursor,
+            projects: projectsToReturn.map(project => ({
                 id: project.id,
                 title: project.title,
                 description: project.description,
@@ -195,20 +215,25 @@ async function getAccessibleProjects(userId: string) {
 export async function GET(req: NextRequest) {
     try {
         const { id } = await authenticateStudent(req);
-        
-        const result = await getAccessibleProjects(id);
 
-        return NextResponse.json({ 
+        const { searchParams } = new URL(req.url);
+        const cursor = searchParams.get('cursor'); // ID of last project from previous batch
+        const limit = parseInt(searchParams.get('limit') || '10');
+
+        const result = await getAccessibleProjects(id, cursor, limit);
+
+        return NextResponse.json({
             message: 'Projects fetched successfully',
             userInfo: result.userInfo,
-            totalProjects: result.projects.length,
-            projects: result.projects
+            projects: result.projects,
+            nextCursor: result.nextCursor,
+            hasMore: result.hasMore
         }, { status: 200 });
 
     } catch (error: any) {
         console.error('Error in projects list API:', error);
-        return NextResponse.json({ 
-            message: error.message || 'Internal server error' 
+        return NextResponse.json({
+            message: error.message || 'Internal server error'
         }, { status: 500 });
     }
 }
