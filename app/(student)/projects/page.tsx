@@ -95,15 +95,18 @@ export default function Home() {
   // Scroll event handler
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || loadingMore) {
-        return;
+      if (loadingMore || !hasMore) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadMoreProjects();
       }
-      loadMoreProjects();
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingMore, hasMore, nextCursor]);
+  }, [loadingMore, hasMore, nextCursor, loadedProjectIds]); // Add loadedProjectIds
 
   // Function to check if the user is authenticated
   async function isAuthenticated() {

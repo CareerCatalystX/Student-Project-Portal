@@ -1,16 +1,29 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, IndianRupee, Search, SlidersHorizontal, Users, Award, FileText, Check, ExternalLink } from "lucide-react"
+import {
+  Calendar,
+  Clock,
+  IndianRupee,
+  Search,
+  SlidersHorizontal,
+  Users,
+  Award,
+  FileText,
+  Check,
+  ExternalLink,
+  MapPin,
+  GraduationCap,
+} from "lucide-react"
 import { redirect } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import Image from "next/image"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface Project {
   id: string
@@ -84,31 +97,27 @@ export function ProjectsList({ projects }: ProjectsListProps) {
 
   // Dynamically generate colleges array from projects data
   const colleges = useMemo(() => {
-    const uniqueColleges = Array.from(
-      new Set(projects.map(project => project.college.name))
-    ).sort()
+    const uniqueColleges = Array.from(new Set(projects.map((project) => project.college.name))).sort()
     return ["All Colleges", ...uniqueColleges]
   }, [projects])
 
   const categories = useMemo(() => {
-    const uniqueCategories = Array.from(
-      new Set(projects.map(project => project.category.name))
-    ).sort()
+    const uniqueCategories = Array.from(new Set(projects.map((project) => project.category.name))).sort()
     return ["All Categories", ...uniqueCategories]
   }, [projects])
 
   // Filter and sort projects
   const filteredProjects = projects
     .filter((project) => {
-      const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch =
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesDepartment = selectedDepartment === "All Departments" ||
+      const matchesDepartment =
+        selectedDepartment === "All Departments" ||
         project.professor.department === selectedDepartment ||
         project.department === selectedDepartment
-      const matchesCollege = selectedCollege === "All Colleges" ||
-        project.college.name === selectedCollege
-      const matchesCategory = selectedCategory === "All Categories" ||
-        project.category.name === selectedCategory
+      const matchesCollege = selectedCollege === "All Colleges" || project.college.name === selectedCollege
+      const matchesCategory = selectedCategory === "All Categories" || project.category.name === selectedCategory
       const matchesLOR = !filterLOR || project.letterOfRecommendation
       const matchesCertificate = !filterCertificate || project.certification
 
@@ -142,16 +151,16 @@ export function ProjectsList({ projects }: ProjectsListProps) {
   )
 
   const handleClosedRedirect = () => {
-    window.open('/projects/closed', '_blank')
+    window.open("/projects/closed", "_blank")
   }
 
   const handleOverdueRedirect = () => {
-    window.open('/projects/overdue', '_blank')
+    window.open("/projects/overdue", "_blank")
   }
 
   return (
     <div className="w-full space-y-6">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-6 px-4">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 px-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -206,7 +215,7 @@ export function ProjectsList({ projects }: ProjectsListProps) {
                     <h4 className="font-medium">Category</h4>
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
+                        <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category) => (
@@ -238,28 +247,38 @@ export function ProjectsList({ projects }: ProjectsListProps) {
                       <Button
                         variant={filterLOR ? "default" : "outline"}
                         size="sm"
-                        className={`w-full justify-start ${filterLOR
-                          ? "bg-teal-600 text-white hover:bg-teal-700"
-                          : "hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
-                          }`}
+                        className={`w-full justify-start ${
+                          filterLOR
+                            ? "bg-teal-600 text-white hover:bg-teal-700"
+                            : "hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
+                        }`}
                         onClick={() => setFilterLOR(!filterLOR)}
                       >
                         <FileText className="h-4 w-4 mr-2" />
                         Letter of Recommendation
-                        {filterLOR && <span className="ml-auto text-xs"><Check className="w-4 h-4 text-teal-100" /></span>}
+                        {filterLOR && (
+                          <span className="ml-auto text-xs">
+                            <Check className="w-4 h-4 text-teal-100" />
+                          </span>
+                        )}
                       </Button>
                       <Button
                         variant={filterCertificate ? "default" : "outline"}
                         size="sm"
-                        className={`w-full justify-start ${filterCertificate
-                          ? "bg-teal-600 text-white hover:bg-teal-700"
-                          : "hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
-                          }`}
+                        className={`w-full justify-start ${
+                          filterCertificate
+                            ? "bg-teal-600 text-white hover:bg-teal-700"
+                            : "hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
+                        }`}
                         onClick={() => setFilterCertificate(!filterCertificate)}
                       >
                         <Award className="h-4 w-4 mr-2" />
                         Certificate
-                        {filterCertificate && <span className="ml-auto text-xs"><Check className="w-4 h-4 text-teal-100" /></span>}
+                        {filterCertificate && (
+                          <span className="ml-auto text-xs">
+                            <Check className="w-4 h-4 text-teal-100" />
+                          </span>
+                        )}
                       </Button>
                     </div>
                     {(filterLOR || filterCertificate) && (
@@ -312,31 +331,23 @@ export function ProjectsList({ projects }: ProjectsListProps) {
         </div>
       </div>
 
-      <div className="">
+      <div className="px-4">
         {/* Open Projects */}
         <div className="space-y-6 px-4">
-          <div className="grid gap-6">
+          <div className="grid gap-4">
             {openProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                className="bg-gradient-to-t from-teal-100 to-teal-50 shadow-md shadow-teal-100"
-              />
+              <ProjectCard key={project.id} project={project} status="open" />
             ))}
           </div>
         </div>
 
         {/* Outdated Projects */}
         {outdatedProjects.length > 0 && (
-          <div className="space-y-6 px-4">
-            <h2 className="text-xl font-semibold">Overdued Projects</h2>
-            <div className="grid gap-6">
+          <div className="space-y-4 mt-8">
+            <h2 className="text-xl font-semibold text-amber-700">Overdue Projects</h2>
+            <div className="grid gap-4">
               {outdatedProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  className="bg-gradient-to-t from-yellow-100 to-yellow-50 shadow-md shadow-yellow-100"
-                />
+                <ProjectCard key={project.id} project={project} status="overdue" />
               ))}
             </div>
           </div>
@@ -344,15 +355,11 @@ export function ProjectsList({ projects }: ProjectsListProps) {
 
         {/* Closed Projects */}
         {closedProjects.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold px-4">Closed Projects</h2>
-            <div className="grid gap-6 px-4">
+          <div className="space-y-4 mt-8">
+            <h2 className="text-xl font-semibold text-slate-700">Closed Projects</h2>
+            <div className="grid gap-4">
               {closedProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  className="bg-gradient-to-t from-blue-100 to-blue-50 shadow-md shadow-blue-100"
-                />
+                <ProjectCard key={project.id} project={project} status="closed" />
               ))}
             </div>
           </div>
@@ -364,104 +371,147 @@ export function ProjectsList({ projects }: ProjectsListProps) {
 
 function ProjectCard({
   project,
-  className
+  status = "open",
 }: {
   project: Project
-  className?: string
+  status?: "open" | "closed" | "overdue"
 }) {
-  const isOutdated = new Date(project.deadline) < new Date() && !project.closed
+  const statusConfig = {
+    open: {
+      cardClass:
+        "border-teal-200 bg-gradient-to-br from-teal-50/50 to-white hover:shadow-lg hover:shadow-teal-100/50 transition-all duration-200",
+      iconColor: "text-teal-600",
+      badgeClass: "border-teal-200 text-teal-700 bg-teal-50",
+      buttonClass: "bg-teal-600 hover:bg-teal-700 text-white",
+    },
+    overdue: {
+      cardClass:
+        "border-amber-200 bg-gradient-to-br from-amber-50/50 to-white hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-200",
+      iconColor: "text-amber-600",
+      badgeClass: "border-amber-200 text-amber-700 bg-amber-50",
+      buttonClass: "bg-amber-600 hover:bg-amber-700 text-white",
+    },
+    closed: {
+      cardClass:
+        "border-slate-200 bg-gradient-to-br from-slate-50/50 to-white hover:shadow-lg hover:shadow-slate-100/50 transition-all duration-200",
+      iconColor: "text-slate-600",
+      badgeClass: "border-slate-200 text-slate-700 bg-slate-50",
+      buttonClass: "bg-slate-600 hover:bg-slate-700 text-white",
+    },
+  }
+
+  const config = statusConfig[status]
 
   return (
-    <Card className={`flex h-full flex-col ${className}`}>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div className="space-y-2">
-            <CardTitle className="line-clamp-2 flex-1 pb-2">{project.title}</CardTitle>
-            <CardDescription>
-              {project.professor.name} • {project.professor.department}
-            </CardDescription>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs">
+    <Card
+      className={`${config.cardClass} border-l-4 ${status === "open" ? "border-l-teal-500" : status === "overdue" ? "border-l-amber-500" : "border-l-slate-500"}`}
+    >
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary" className={`${config.badgeClass} text-xs font-medium`}>
                 {project.category.name}
               </Badge>
-              <Badge variant="outline" className="text-xs">
-                {project.college.name}
-              </Badge>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {project.college.logo && (
-              <Image
-                src={project.college.logo}
-                alt={`${project.college.name} logo`}
-                className="object-contain rounded"
-                width={64}
-                height={64}
-              />
-            )}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col justify-between gap-6">
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground line-clamp-3">{project.description}</p>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className={`h-4 w-4 ${project.closed ? "text-blue-600" : isOutdated ? "text-yellow-600" : "text-teal-600"}`} />
-              <span>{project.duration}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className={`h-4 w-4 ${project.closed ? "text-blue-600" : isOutdated ? "text-yellow-600" : "text-teal-600"}`} />
-              <span>Due {new Date(project.deadline).toLocaleDateString()}</span>
-            </div>
-            {project.stipend && project.stipend > 0 && (
-              <div className="flex items-center gap-2 text-sm">
-                <IndianRupee className={`h-4 w-4 ${project.closed ? "text-blue-600" : isOutdated ? "text-yellow-600" : "text-teal-600"}`} />
-                <span>₹{project.stipend.toLocaleString("en-IN")}/month</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2 text-sm">
-              <Users className={`h-4 w-4 ${project.closed ? "text-blue-600" : isOutdated ? "text-yellow-600" : "text-teal-600"}`} />
-              <span>{project.numberOfStudentsNeeded} students needed</span>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {/* Skills */}
-          {project.skills && project.skills.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {project.skills.slice(0, 3).map((skill) => (
-                <Badge variant="secondary" key={skill.id} className={`text-xs ${project.closed ? "bg-transparent text-blue-600 hover:bg-blue-600 hover:text-white" : isOutdated ? "bg-transparent text-yellow-600 hover:bg-yellow-600 hover:text-white" : "bg-transparent text-teal-600 hover:bg-teal-600 hover:text-white"}`}>
-                  {skill.name}
+              {status === "overdue" && (
+                <Badge variant="destructive" className="text-xs">
+                  Overdue
                 </Badge>
-              ))}
-              {project.skills.length > 3 && (
-                <Badge variant="secondary" className={`text-xs ${project.closed ? "bg-transparent text-blue-600 hover:bg-blue-600 hover:text-white" : isOutdated ? "bg-transparent text-yellow-600 hover:bg-yellow-600 hover:text-white" : "bg-transparent text-teal-600 hover:bg-teal-600 hover:text-white"}`}>
-                  +{project.skills.length - 3} more
+              )}
+              {status === "closed" && (
+                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-600">
+                  Closed
                 </Badge>
               )}
             </div>
+            <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">{project.title}</CardTitle>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <GraduationCap className="h-4 w-4" />
+                <span className="font-medium">{project.professor.name}</span>
+              </div>
+              <Separator orientation="vertical" className="h-4" />
+              <div className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                <span>{project.college.name}</span>
+              </div>
+            </div>
+          </div>
+          {project.college.logo && (
+            <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+              <AvatarImage src={project.college.logo || "/placeholder.svg"} alt={project.college.name} />
+              <AvatarFallback className="text-xs font-semibold bg-teal-100 text-teal-700">
+                {project.college.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           )}
+        </div>
+      </CardHeader>
 
-          {/* Benefits */}
-          <div className="flex flex-wrap gap-2">
-            {project.certification && (
-              <Badge variant="outline" className="text-xs flex items-center gap-1">
-                <Award className="h-3 w-3" />
-                Certificate
+      <CardContent className="pt-0 space-y-4">
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{project.description}</p>
+
+        {/* Project Details Grid */}
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Clock className={`h-4 w-4 ${config.iconColor}`} />
+            <span className="font-medium">{project.duration}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className={`h-4 w-4 ${config.iconColor}`} />
+            <span>Due {new Date(project.deadline).toLocaleDateString()}</span>
+          </div>
+          {project.stipend && project.stipend > 0 && (
+            <div className="flex items-center gap-2">
+              <IndianRupee className={`h-4 w-4 ${config.iconColor}`} />
+              <span className="font-medium">₹{project.stipend.toLocaleString("en-IN")}/mo</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <Users className={`h-4 w-4 ${config.iconColor}`} />
+            <span>{project.numberOfStudentsNeeded} needed</span>
+          </div>
+        </div>
+
+        {/* Skills */}
+        {project.skills && project.skills.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {project.skills.slice(0, 4).map((skill) => (
+              <Badge
+                key={skill.id}
+                variant="outline"
+                className={`text-xs px-2 py-0.5 ${config.badgeClass} border-dashed`}
+              >
+                {skill.name}
               </Badge>
-            )}
-            {project.letterOfRecommendation && (
-              <Badge variant="outline" className="text-xs flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                Letter of Recommendation
+            ))}
+            {project.skills.length > 4 && (
+              <Badge variant="outline" className={`text-xs px-2 py-0.5 ${config.badgeClass} border-dashed`}>
+                +{project.skills.length - 4}
               </Badge>
             )}
           </div>
+        )}
 
+        {/* Benefits and Action */}
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-2">
+            {project.certification && (
+              <div className={`flex items-center gap-1 text-xs ${config.iconColor}`}>
+                <Award className="h-3.5 w-3.5" />
+                <span>Certificate</span>
+              </div>
+            )}
+            {project.letterOfRecommendation && (
+              <div className={`flex items-center gap-1 text-xs ${config.iconColor}`}>
+                <FileText className="h-3.5 w-3.5" />
+                <span>LOR</span>
+              </div>
+            )}
+          </div>
           <Button
-            className={`w-full ${project.closed ? "bg-blue-600 text-white hover:bg-blue-700" : isOutdated ? "bg-yellow-600 text-white hover:bg-yellow-700" : "bg-teal-600 text-white hover:bg-teal-700"}`}
-            variant="default"
+            size="sm"
+            className={`${config.buttonClass} px-4 py-2 text-sm font-medium`}
             onClick={() => redirect(`/projects/${project.id}`)}
           >
             View Details

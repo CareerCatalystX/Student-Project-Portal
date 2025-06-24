@@ -47,6 +47,10 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadedProjectIds, setLoadedProjectIds] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   // Function to check if the user is authenticated
@@ -68,7 +72,7 @@ export default function Home() {
 
     const getProjects = async () => {
       try {
-        const response = await fetch("/api/projects/list/overdue", {
+        const response = await fetch("/api/projects/list/overdue?limit=10", {
           method: "GET",
           credentials: "include"
         });
@@ -77,6 +81,10 @@ export default function Home() {
         }
         const data = await response.json();
         setProjects(data.projects);
+        const initialIds = new Set<string>(data.projects.map((p: Project) => p.id as string));
+        setLoadedProjectIds(initialIds);
+        setNextCursor(data.nextCursor);
+        setHasMore(data.hasMore);
       } catch (err) {
         console.error("Error fetching projects:", err);
         setError("Failed to fetch projects. Please try again later.");
@@ -87,6 +95,61 @@ export default function Home() {
 
     getProjects();
   }, [router]);
+
+  // Add this useEffect after your existing useEffect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingMore || !hasMore) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadMoreProjects();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore, nextCursor, loadedProjectIds]); // Add loadedProjectIds
+
+  const loadMoreProjects = async () => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    try {
+      const url = `/api/projects/list/overdue?limit=10${nextCursor ? `&cursor=${nextCursor}` : ''}`;
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include"
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch more projects");
+
+      const data = await response.json();
+
+      // Filter out duplicates
+      const uniqueNewProjects = filterDuplicateProjects(data.projects, loadedProjectIds);
+
+      if (uniqueNewProjects.length > 0) {
+        setProjects(prev => [...prev, ...uniqueNewProjects]);
+
+        // Update loaded project IDs
+        const newIds = new Set<string>([...loadedProjectIds, ...uniqueNewProjects.map(p => p.id as string)]);
+        setLoadedProjectIds(newIds);
+      }
+
+      setNextCursor(data.nextCursor);
+      setHasMore(data.hasMore);
+    } catch (err) {
+      console.error("Error loading more projects:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const filterDuplicateProjects = (newProjects: Project[], existingIds: Set<string>) => {
+    return newProjects.filter(project => !existingIds.has(project.id));
+  };
 
   return (
     <div className="min-h-screen flex flex-col flex-grow bg-background max-w-screen overflow-x-hidden">
@@ -105,12 +168,19 @@ export default function Home() {
       <main className="py-8 px-4 w-full">
         {loading ? (
           <div className={cn("flex mt-64 items-center justify-center bg-white")}>
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-teal-600"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-yellow-600"></div>
           </div>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : projects.length > 0 ? (
-          <ProjectsList projects={projects} />
+          <>
+            <ProjectsList projects={projects} />
+            {loadingMore && (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-yellow-600"></div>
+              </div>
+            )}
+          </>
         ) : (
           <NoProjects />
         )}
