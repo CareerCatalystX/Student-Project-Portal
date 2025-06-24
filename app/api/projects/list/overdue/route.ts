@@ -26,17 +26,17 @@ async function authenticateStudent(req: NextRequest) {
             throw new Error('Access forbidden: Students only');
         }
 
-        return { 
-            id: decoded.id, 
+        return {
+            id: decoded.id,
             collegeId: decoded.collegeId,
-            studentId: decoded.studentId 
+            studentId: decoded.studentId
         };
     } catch (error) {
         throw new Error('Invalid or expired token');
     }
 }
 
-async function getAccessibleProjects(userId: string) {
+async function getAccessibleProjects(userId: string, cursor: string | null = null, limit: number = 10) {
     try {
         // Get user with their subscriptions and college info
         const user = await prisma.user.findUnique({
@@ -87,7 +87,7 @@ async function getAccessibleProjects(userId: string) {
             const allAccessibleColleges = user.subscriptions.flatMap(
                 sub => sub.plan.accessibleColleges.map(college => college.id)
             );
-            
+
             // Remove duplicates and add user's own college
             accessibleCollegeIds = [...new Set([...allAccessibleColleges, user.collegeId])];
         } else {
@@ -95,17 +95,24 @@ async function getAccessibleProjects(userId: string) {
             accessibleCollegeIds = [user.collegeId];
         }
 
+        const whereClause: any = {
+            collegeId: {
+                in: accessibleCollegeIds
+            },
+            deadline: {
+                lte: new Date()
+            }
+        };
+
+        if (cursor) {
+            whereClause.id = {
+                lt: cursor
+            };
+        }
+
         // Get projects from accessible colleges
         const projects = await prisma.project.findMany({
-            where: {
-                collegeId: {
-                    in: accessibleCollegeIds
-                },
-                // closed: false, // Only show open projects
-                deadline: {
-                    lte: new Date() // Only show projects with deadlines passed
-                }
-            },
+            where: whereClause,
             include: {
                 college: {
                     select: {
@@ -142,8 +149,14 @@ async function getAccessibleProjects(userId: string) {
             },
             orderBy: {
                 createdAt: 'desc'
-            }
+            },
+            take: limit + 1, // Add this line
+            distinct: ['id']
         });
+
+        const hasMore = projects.length > limit;
+        const projectsToReturn = hasMore ? projects.slice(0, limit) : projects;
+        const nextCursor = hasMore ? projectsToReturn[projectsToReturn.length - 1].id : null;
 
         return {
             userInfo: {
@@ -157,6 +170,8 @@ async function getAccessibleProjects(userId: string) {
                 }))
             },
             accessibleCollegeIds,
+            hasMore,
+            nextCursor,
             projects: projects.map(project => ({
                 id: project.id,
                 title: project.title,
@@ -195,10 +210,13 @@ async function getAccessibleProjects(userId: string) {
 export async function GET(req: NextRequest) {
     try {
         const { id } = await authenticateStudent(req);
-        
-        const result = await getAccessibleProjects(id);
+        const { searchParams } = new URL(req.url);
+        const cursor = searchParams.get('cursor');
+        const limit = parseInt(searchParams.get('limit') || '10');
 
-        return NextResponse.json({ 
+        const result = await getAccessibleProjects(id, cursor, limit);
+
+        return NextResponse.json({
             message: 'Projects fetched successfully',
             userInfo: result.userInfo,
             totalProjects: result.projects.length,
@@ -207,8 +225,8 @@ export async function GET(req: NextRequest) {
 
     } catch (error: any) {
         console.error('Error in projects list API:', error);
-        return NextResponse.json({ 
-            message: error.message || 'Internal server error' 
+        return NextResponse.json({
+            message: error.message || 'Internal server error'
         }, { status: 500 });
     }
 }
