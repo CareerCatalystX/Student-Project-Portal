@@ -335,11 +335,11 @@ function UpdateProfileForm({ form, setIsUpdated, refreshProfile }: UpdateProfile
                                                         accept=".pdf"
                                                         onChange={handleFileSelect}
                                                         disabled={isLoading || uploadingFile}
-                                                        className="border-teal-200 focus:border-teal-400 focus:ring-teal-400 bg-teal-50/50"
+                                                        className="border-teal-200 focus:border-teal-400 focus:ring-teal-400 bg-teal-50/50 h-fit my-auto py-2"
                                                     />
                                                     {selectedFile && (
                                                         <p className="text-sm text-teal-600 mt-1">
-                                                            Selected: {selectedFile.name}
+                                                            Selected: <span className="text-gray-700">{selectedFile.name}</span>
                                                         </p>
                                                     )}
                                                 </div>

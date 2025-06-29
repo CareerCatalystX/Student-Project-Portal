@@ -41,6 +41,7 @@ function VerifyOTPForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
+  const redirectUrl = searchParams.get('redirect') || '/'
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -99,7 +100,7 @@ function VerifyOTPForm() {
 
         const data = await response.json();
 
-        router.push("/");
+        router.push(redirectUrl)
         return data;
       })(),
       {

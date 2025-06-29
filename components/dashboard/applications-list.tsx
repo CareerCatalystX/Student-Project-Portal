@@ -63,7 +63,7 @@ export function ApplicationsList({ applications = [], className, ...props }: App
               </div>
             ))
           )}
-          <Button variant="outline" className="w-full text-teal-600 hover:text-teal-600" asChild>
+          <Button variant="ghost" className="w-full text-white hover:text-white shadow-xl bg-teal-800 hover:bg-teal-900" asChild>
             <Link href="/projects">Browse Projects</Link>
           </Button>
         </div>

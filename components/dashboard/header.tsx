@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LayoutDashboard, User, FileText, LogOut, Plus, SquarePlus } from 'lucide-react'
+import { LayoutDashboard, User, FileText, LogOut, Plus, SquarePlus, IndianRupee } from 'lucide-react'
 import { StudentProfile } from "@/types/profile"
 
 import { Button } from "@/components/ui/button"
@@ -52,7 +52,13 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
             </div>
           </Link>
           <Link href={"/projects"}>
-            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-purple-900 via-purple-600 to-purple-900 bg-clip-text text-transparent">Projects</p>
+            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Projects</p>
+          </Link>
+          <Link href={"/purchase"}>
+            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Plans</p>
+          </Link>
+          <Link href={"/subscriptions"}>
+            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Subscriptions</p>
           </Link>
         </div>
 
@@ -62,26 +68,30 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full hover:bg-teal-100"
+                  className="relative h-8 w-8 rounded-full hover:bg-teal-100 bg-transparent"
                 >
                   <User className="text-teal-700" size={40} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-fit" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.user?.name}</p>
+                    <p className="text-sm font-medium leading-none mb-1">{user.user?.name}</p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => { router.push("/update") }} className="bg-teal-50 text-teal-600 hover:!bg-teal-100 hover:!text-teal-600">
+                <DropdownMenuItem onClick={() => { router.push("/update") }} className=" text-teal-600 hover:!bg-teal-100 hover:!text-teal-600 mb-2">
                   <SquarePlus className="mr-2 h-4 w-4" />
                   <span>Update Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="bg-red-50 text-red-600 hover:!bg-red-100 hover:!text-red-600">
+                <DropdownMenuItem onClick={() => { router.push("/purchase") }} className=" text-blue-600 hover:!bg-blue-100 hover:!text-blue-600">
+                  <IndianRupee className="mr-2 h-4 w-4" />
+                  <span>Buy a Plan</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 hover:!bg-red-100 hover:!text-red-600 mt-2">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
@@ -90,7 +100,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
           )}
         </div>
       </div>
-    </header>
+    </header >
   )
 }
 

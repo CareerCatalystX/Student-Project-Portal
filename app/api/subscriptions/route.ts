@@ -25,58 +25,35 @@ async function authenticateStudent(req: NextRequest) {
             throw new Error('Access forbidden: Students only');
         }
 
-        return { id: decoded.id };
+        return {
+            userId: decoded.id,
+            studentId: decoded.studentId,
+            collegeId: decoded.collegeId,
+            userName: decoded.name
+        };
     } catch (error) {
         throw new Error('Invalid or expired token');
     }
 }
 
-export async function POST(req: NextRequest) {
-    try {
-        const { id } = await authenticateStudent(req);
-        const { planId } = await req.json();
-        const plan = await prisma.plan.findUnique({
-            where: {
-                id: planId
-            }
-        })
-        if (!plan) {
-            return NextResponse.json({ message: "Plan not Found" }, { status: 400 });
-        }
-        const billingCycle = plan.billingCycle;
-        const endsAt = new Date();
-
-        if (billingCycle === "MONTHLY") {
-            endsAt.setMonth(endsAt.getMonth() + 1);
-        } else if (billingCycle === "YEARLY") {
-            endsAt.setFullYear(endsAt.getFullYear() + 1);
-        }
-        const subscription = await prisma.subscription.create({
-            data: {
-                userId: id,
-                planId: planId,
-                status: 'ACTIVE',
-                endsAt: endsAt
-            }
-        })
-        return NextResponse.json({ message: 'Subscription successfully added', subscription }, { status: 200 });
-    } catch (error: any) {
-        console.error('Error while subscribing:', error.message);
-        return NextResponse.json({ message: error.message || 'Internal server error' }, { status: 500 });
-    }
-}
-
 export async function GET(req: NextRequest) {
     try {
-        const { id } = await authenticateStudent(req);
+        const { userId } = await authenticateStudent(req);
+        
+        // Fetch 10 recent subscriptions sorted by nearest end date
         const subscriptions = await prisma.subscription.findMany({
             where: {
-                userId: id
+                userId
             },
             include: {
                 plan: true
-            }
+            },
+            orderBy: {
+                startedAt: 'desc' // Nearest end date first
+            },
+            take: 10 // Limit to 10 subscriptions
         });
+        
         const updatedSubscriptions = subscriptions.map(sub => {
             const isExpired = new Date(sub.endsAt) < new Date();
             return {
@@ -84,6 +61,7 @@ export async function GET(req: NextRequest) {
                 status: isExpired ? 'EXPIRED' : sub.status
             };
         });
+        
         return NextResponse.json({ message: 'Subscription successfully fetched', updatedSubscriptions }, { status: 200 });
     } catch (error: any) {
         console.error('Error while subscribing:', error.message);
