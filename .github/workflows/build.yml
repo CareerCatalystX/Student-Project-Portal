@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22" # ⬅️ updated here
+          node-version: "22"
 
       - name: Cache npm
         uses: actions/cache@v4
@@ -44,3 +44,7 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RAZORPAY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_TEST_KEY_ID }}
+          RAZORPAY_SECRET: ${{ secrets.RAZORPAY_TEST_KEY_SECRET }}
