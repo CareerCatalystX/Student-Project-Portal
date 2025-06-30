@@ -1,6 +1,6 @@
 "use client"
 import { Suspense, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -47,6 +47,8 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [err, setErr] = useState("")
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect') || '/'
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,7 +79,7 @@ function LoginForm() {
       loading: "Logging you in...",
       success: (data) => {
         localStorage.setItem('otpStartTime', Date.now().toString())
-        router.push(`/verify-otp?email=${encodeURIComponent(values.email)}`)
+        router.push(`/verify-otp?email=${encodeURIComponent(values.email)}&redirect=${encodeURIComponent(redirectUrl)}`)
         setIsLoading(false)
         return "OTP sent to your email. Please verify to continue."
       },

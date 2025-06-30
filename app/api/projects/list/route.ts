@@ -95,7 +95,7 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
             accessibleCollegeIds = [user.collegeId];
         }
 
-        // Build where clause with cursor
+        // Build where clause with cursor for proper pagination
         const whereClause: any = {
             collegeId: {
                 in: accessibleCollegeIds
@@ -106,11 +106,19 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
             }
         };
 
-        // Add cursor condition for pagination
+        // Add cursor condition for pagination (newest first, so use createdAt for cursor)
         if (cursor) {
-            whereClause.id = {
-                lt: cursor // Get projects with ID less than cursor (for desc order)
-            };
+            // Find the cursor project to get its createdAt timestamp
+            const cursorProject = await prisma.project.findUnique({
+                where: { id: cursor },
+                select: { createdAt: true }
+            });
+            
+            if (cursorProject) {
+                whereClause.createdAt = {
+                    lt: cursorProject.createdAt // Get projects created before cursor project
+                };
+            }
         }
 
         // Get projects with one extra to check if there are more
@@ -151,10 +159,9 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
                 }
             },
             orderBy: {
-                createdAt: 'desc'
+                createdAt: 'desc' // Newest first
             },
-            take: limit + 1 ,// Get one extra to determine if there are more
-            distinct: ['id']
+            take: limit + 1, // Get one extra to determine if there are more
         });
 
         // Check if there are more projects
@@ -162,17 +169,13 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
         const projectsToReturn = hasMore ? projects.slice(0, limit) : projects;
         const nextCursor = hasMore ? projectsToReturn[projectsToReturn.length - 1].id : null;
 
-
         return {
             userInfo: {
                 id: user.id,
                 name: user.name,
                 college: user.college,
-                hasActivePaidSubscription,
-                activePlans: user.subscriptions.map(sub => ({
-                    planName: sub.plan.name,
-                    endsAt: sub.endsAt
-                }))
+                hasActivePaidSubscription
+                // Removed activePlans to not expose plan details
             },
             accessibleCollegeIds,
             hasMore,
@@ -201,7 +204,7 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
                     name: ps.skill.name
                 })),
                 category: project.catego0ry ? {
-                    name: project.catego0ry.name
+                    name: project.catego0ry .name
                 } : null,
             }))
         };
