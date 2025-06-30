@@ -90,7 +90,7 @@ const PricingPage = () => {
 
             return new Promise((resolve, reject) => {
                 const paymentData = {
-                    key: process.env.RAZORPAY_TEST_KEY_ID!,
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_TEST_KEY_ID,
                     order_id: data.order.id,
                     handler: async function (response: any) {
                         try {
