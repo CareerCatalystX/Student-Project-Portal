@@ -46,5 +46,5 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          RAZORPAY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_TEST_KEY_ID }}
+          RAZORPAY_ID: ${{ secrets.RAZORPAY_TEST_KEY_ID }}
           RAZORPAY_SECRET: ${{ secrets.RAZORPAY_TEST_KEY_SECRET }}
