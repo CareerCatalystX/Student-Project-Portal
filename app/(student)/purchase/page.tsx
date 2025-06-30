@@ -75,9 +75,11 @@ const PricingPage = () => {
                 if (response.status === 400) {
                     const errorData = await response.json();
                     if (errorData.code === 'INVALID_PORTAL_SELECTION') {
+                        setIsProcessing(false);
                         throw new Error('Invalid portal selection');
                     } else if (errorData.code === 'INVALID_PLAN') {
-                        throw new Error('Invalid plan selected.')
+                        setIsProcessing(false);
+                        throw new Error('Invalid plan selected.');
                     }
                 }
 
@@ -223,6 +225,24 @@ const PricingPage = () => {
             />
             <div className="min-h-screen bg-white">
                 <div className="max-w-7xl mx-auto pt-8 px-4">
+                    <div className="text-center mb-16">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                        >
+                            <span className="inline-block mb-4 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-full">
+                                Student Portal
+                            </span>
+                            <h1 className="text-5xl font-bold text-gray-900 mb-6">
+                                Choose Your Learning Path
+                            </h1>
+                            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                                Unlock your potential with our specialized student tools and resources
+                            </p>
+                        </motion.div>
+                    </div>
+
                     <div className="flex justify-center mb-8">
                         <div className="bg-gray-100 p-1 rounded-lg">
                             <button
@@ -244,23 +264,6 @@ const PricingPage = () => {
                                 Annual
                             </button>
                         </div>
-                    </div>
-                    <div className="text-center mb-16">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <span className="inline-block mb-4 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-full">
-                                Student Portal
-                            </span>
-                            <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                                Choose Your Learning Path
-                            </h1>
-                            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                                Unlock your potential with our specialized student tools and resources
-                            </p>
-                        </motion.div>
                     </div>
 
                     {/* Pricing Cards */}
