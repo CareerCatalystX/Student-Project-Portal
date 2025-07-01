@@ -151,7 +151,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col flex-grow bg-background max-w-screen overflow-x-hidden">
+    <div className="min-h-screen flex flex-col flex-grow bg-background overflow-x-hidden">
       <header className="border-b border-teal-100 bg-white shadow-sm shadow-teal-200 w-full">
         <div className="flex h-16 items-center justify-between w-full px-4">
           <div className="flex items-center">
@@ -164,7 +164,7 @@ export default function Home() {
           </div>
         </div>
       </header>
-      <main className="py-8 px-4 w-full">
+      <main className="py-8 w-full">
         {loading ? (
           <div className={cn("flex mt-64 items-center justify-center bg-white")}>
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-600"></div>

@@ -159,7 +159,7 @@ export function ProjectsList({ projects }: ProjectsListProps) {
   }
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full mx-auto space-y-6">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 px-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
@@ -333,7 +333,7 @@ export function ProjectsList({ projects }: ProjectsListProps) {
 
       <div className="px-4">
         {/* Open Projects */}
-        <div className="space-y-6 px-4">
+        <div className="space-y-6 lg:px-12">
           <div className="grid gap-4">
             {openProjects.map((project) => (
               <ProjectCard key={project.id} project={project} status="open" />

@@ -1,6 +1,6 @@
 "use client"
 import { motion } from 'framer-motion';
-import { Check, FolderOpen, Briefcase, FileText } from 'lucide-react';
+import { Check, FolderOpen, Briefcase, FileText, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { toast } from "sonner";
@@ -223,8 +223,22 @@ const PricingPage = () => {
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 strategy="lazyOnload"
             />
-            <div className="min-h-screen bg-white">
-                <div className="max-w-7xl mx-auto pt-8 px-4">
+            <div className="min-h-screen bg-white overflow-x-hidden">
+                <div className="max-w-7xl mx-auto pt-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <button
+                            onClick={() => router.back()}
+                            className="flex items-center space-x-2 text-neutral-700 hover:text-neutral-800 hover:bg-neutral-200 px-2 py-1 rounded-md mb-4 ml-2 lg:ml-0 transition duration-200"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            <span className="font-medium">Back</span>
+                        </button>
+                    </motion.div>
+
                     <div className="text-center mb-16">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -242,29 +256,36 @@ const PricingPage = () => {
                             </p>
                         </motion.div>
                     </div>
-
-                    <div className="flex justify-center mb-8">
-                        <div className="bg-gray-100 p-1 rounded-lg">
-                            <button
-                                onClick={() => setPlanType('monthly')}
-                                className={`px-6 py-2 rounded-md font-medium transition-colors ${planType === 'monthly'
-                                    ? 'bg-white text-gray-900 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                Monthly
-                            </button>
-                            <button
-                                onClick={() => setPlanType('annual')}
-                                className={`px-6 py-2 rounded-md font-medium transition-colors ${planType === 'annual'
-                                    ? 'bg-white text-gray-900 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                Annual
-                            </button>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <div className="flex justify-center mb-8">
+                            <div className="bg-gray-100 p-1 rounded-lg">
+                                <button
+                                    onClick={() => setPlanType('monthly')}
+                                    className={`px-6 py-2 rounded-md font-medium transition-colors ${planType === 'monthly'
+                                        ? 'bg-white text-gray-900 shadow-sm'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                >
+                                    Monthly
+                                </button>
+                                <button
+                                    onClick={() => setPlanType('annual')}
+                                    className={`px-6 py-2 rounded-md font-medium transition-colors ${planType === 'annual'
+                                        ? 'bg-white text-gray-900 shadow-sm'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                >
+                                    Annual
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </motion.div>
+
+
 
                     {/* Pricing Cards */}
                     <div className="grid lg:grid-cols-3 gap-8 justify-items-center mb-16">
@@ -276,10 +297,10 @@ const PricingPage = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.6 }}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl shadow-xl p-8 mb-16 text-white text-center"
+                        className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl shadow-xl py-8 mb-16 mx-2 text-white text-center"
                     >
-                        <h2 className="text-3xl font-bold mb-4">All-in-One Bundle</h2>
-                        <p className="text-xl mb-6">Get all three portals at a special price!</p>
+                        <h2 className="text-xl lg:text-3xl font-bold mb-4">All-in-One Bundle</h2>
+                        <p className="text-sm lg:text-xl mb-6">Get all three portals at a special price!</p>
                         <div className="flex items-center justify-center gap-4 mb-6">
                             <span className="text-2xl line-through opacity-70">₹1047</span>
                             <span className="text-4xl font-bold">₹899</span>

@@ -1,4 +1,4 @@
-// /app/api/projects/list/overdue/route.ts
+// /app/api/projects/list/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
@@ -77,7 +77,7 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
 
         // Check if user has any active paid subscriptions
         const hasActivePaidSubscription = user.subscriptions.some(
-            sub => sub.plan.billingCycle !== 'FREE' && sub.status === 'ACTIVE'
+            (sub: { plan: { billingCycle: string; }; status: string; }) => sub.plan.billingCycle !== 'FREE' && sub.status === 'ACTIVE'
         );
 
         let accessibleCollegeIds: string[] = [];
@@ -85,7 +85,7 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
         if (hasActivePaidSubscription) {
             // User has paid plan - get accessible colleges from all active subscriptions
             const allAccessibleColleges = user.subscriptions.flatMap(
-                sub => sub.plan.accessibleColleges.map(college => college.id)
+                (sub: { plan: { accessibleColleges: any[]; }; }) => sub.plan.accessibleColleges.map(college => college.id)
             );
 
             // Remove duplicates and add user's own college
@@ -95,6 +95,7 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
             accessibleCollegeIds = [user.collegeId];
         }
 
+        // Build where clause with cursor for proper pagination
         const whereClause: any = {
             collegeId: {
                 in: accessibleCollegeIds
@@ -104,13 +105,22 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
             }
         };
 
+        // Add cursor condition for pagination (newest first, so use createdAt for cursor)
         if (cursor) {
-            whereClause.id = {
-                lt: cursor
-            };
+            // Find the cursor project to get its createdAt timestamp
+            const cursorProject = await prisma.project.findUnique({
+                where: { id: cursor },
+                select: { createdAt: true }
+            });
+
+            if (cursorProject) {
+                whereClause.createdAt = {
+                    lt: cursorProject.createdAt // Get projects created before cursor project
+                };
+            }
         }
 
-        // Get projects from accessible colleges
+        // Get projects with one extra to check if there are more
         const projects = await prisma.project.findMany({
             where: whereClause,
             include: {
@@ -148,12 +158,12 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
                 }
             },
             orderBy: {
-                createdAt: 'desc'
+                createdAt: 'desc' // Newest first
             },
-            take: limit + 1, // Add this line
-            distinct: ['id']
+            take: limit + 1, // Get one extra to determine if there are more
         });
 
+        // Check if there are more projects
         const hasMore = projects.length > limit;
         const projectsToReturn = hasMore ? projects.slice(0, limit) : projects;
         const nextCursor = hasMore ? projectsToReturn[projectsToReturn.length - 1].id : null;
@@ -163,16 +173,13 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
                 id: user.id,
                 name: user.name,
                 college: user.college,
-                hasActivePaidSubscription,
-                activePlans: user.subscriptions.map(sub => ({
-                    planName: sub.plan.name,
-                    endsAt: sub.endsAt
-                }))
+                hasActivePaidSubscription
+                // Removed activePlans to not expose plan details
             },
             accessibleCollegeIds,
             hasMore,
             nextCursor,
-            projects: projects.map(project => ({
+            projects: projectsToReturn.map(project => ({
                 id: project.id,
                 title: project.title,
                 description: project.description,
@@ -210,8 +217,9 @@ async function getAccessibleProjects(userId: string, cursor: string | null = nul
 export async function GET(req: NextRequest) {
     try {
         const { id } = await authenticateStudent(req);
+
         const { searchParams } = new URL(req.url);
-        const cursor = searchParams.get('cursor');
+        const cursor = searchParams.get('cursor'); // ID of last project from previous batch
         const limit = parseInt(searchParams.get('limit') || '10');
 
         const result = await getAccessibleProjects(id, cursor, limit);
@@ -219,8 +227,9 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             message: 'Projects fetched successfully',
             userInfo: result.userInfo,
-            totalProjects: result.projects.length,
-            projects: result.projects
+            projects: result.projects,
+            nextCursor: result.nextCursor,
+            hasMore: result.hasMore
         }, { status: 200 });
 
     } catch (error: any) {

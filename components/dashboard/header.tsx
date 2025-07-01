@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LayoutDashboard, User, FileText, LogOut, Plus, SquarePlus, IndianRupee } from 'lucide-react'
+import { User, LogOut, SquarePlus, IndianRupee, FolderKanban, BadgeCheck } from 'lucide-react'
 import { StudentProfile } from "@/types/profile"
 
 import { Button } from "@/components/ui/button"
@@ -47,19 +47,21 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
       <div className="flex h-14 items-center justify-between">
         <div className="mr-4 flex items-center gap-4">
           <Link href={"/"}>
-            <div className="flex items-center">
+            <div className="flex items-center -ml-2 lg:ml-0">
               <Image src="/logo-master.png" alt="Logo" width={196} height={64} />
             </div>
           </Link>
-          <Link href={"/projects"}>
-            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Projects</p>
-          </Link>
-          <Link href={"/purchase"}>
-            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Plans</p>
-          </Link>
-          <Link href={"/subscriptions"}>
-            <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Subscriptions</p>
-          </Link>
+          <div className="hidden lg:flex lg:gap-4">
+            <Link href={"/projects"}>
+              <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Projects</p>
+            </Link>
+            <Link href={"/purchase"}>
+              <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Plans</p>
+            </Link>
+            <Link href={"/subscriptions"}>
+              <p className="hover:cursor-pointer font-light text-sm px-2 py-1 bg-gradient-to-r from-teal-900 via-teal-600 to-teal-900 bg-clip-text text-transparent">Subscriptions</p>
+            </Link>
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -87,10 +89,19 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   <SquarePlus className="mr-2 h-4 w-4" />
                   <span>Update Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { router.push("/purchase") }} className=" text-blue-600 hover:!bg-blue-100 hover:!text-blue-600">
+                <DropdownMenuItem onClick={() => { router.push("/purchase") }} className=" text-blue-600 hover:!bg-blue-100 hover:!text-blue-600 mb-2">
                   <IndianRupee className="mr-2 h-4 w-4" />
                   <span>Buy a Plan</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { router.push("/projects") }} className=" text-purple-600 hover:!bg-purple-100 hover:!text-purple-600 flex lg:hidden mb-2">
+                  <FolderKanban className="mr-2 h-4 w-4" />
+                  <span>Projects</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { router.push("/subscriptions") }} className=" text-neutral-600 hover:!bg-neutral-100 hover:!text-neutral-600 flex lg:hidden">
+                  <BadgeCheck className="mr-2 h-4 w-4" />
+                  <span>Subscriptions</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600 hover:!bg-red-100 hover:!text-red-600 mt-2">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>

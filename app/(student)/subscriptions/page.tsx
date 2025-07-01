@@ -141,7 +141,7 @@ export default function SubscriptionsPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <button
                     onClick={() => router.back()}
-                    className="flex items-center space-x-2 text-teal-600 hover:text-teal-700 mb-6 transition duration-200"
+                    className="flex items-center space-x-2 text-neutral-700 hover:text-neutral-800 hover:bg-neutral-200 px-2 py-1 rounded-md mb-4 -ml-2 lg:ml-0 transition duration-200"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     <span className="font-medium">Back</span>

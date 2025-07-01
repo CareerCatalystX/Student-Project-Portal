@@ -15,8 +15,7 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
     <div className="h-fit">
       <Card className="bg-gradient-to-t from-white to-teal-50 shadow-md shadow-teal-50" {...props}>
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl">Student Profile</CardTitle>
-          <CardDescription>View and manage your profile information</CardDescription>
+          <CardTitle className="text-2xl">Student Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -135,7 +134,7 @@ export function StudentProfile({ user, className, ...props }: StudentProfileProp
             </div>
 
             {/* Right: CV Section - Takes 1 column on large screens */}
-            <div className="lg:col-span-1">
+            <div className="mt-12 lg:mt-0 lg:col-span-1">
               <CVDisplay user={user} />
             </div>
           </div>
