@@ -47,6 +47,255 @@ This repository contains the **student-facing application** of CareerCatalystX.
 - Powered by Razorpay
 
 ---
+# 🗃️ File Structure 
+```
+Student-Project-Portal/
+├── .github/
+│   └── workflows/
+│       └── build.yml
+├── .gitignore
+├── README.md
+├── app/
+│   ├── (student)/
+│   │   ├── (profile_context)/
+│   │   │   ├── (dashboard)/
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   └── update/
+│   │   │       └── page.tsx
+│   │   ├── apply/
+│   │   │   └── [id]/
+│   │   │       ├── layout.tsx
+│   │   │       └── page.tsx
+│   │   ├── enrollment-success/
+│   │   │   └── page.tsx
+│   │   ├── forgot-password/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── login/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── projects/
+│   │   │   ├── [id]/
+│   │   │   │   ├── loading.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── closed/
+│   │   │   │   ├── loading.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── overdue/
+│   │   │   │   ├── loading.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── purchase/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── signup/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── subscriptions/
+│   │   │   └── page.tsx
+│   │   ├── update-password/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   └── verify-otp/
+│   │       ├── layout.tsx
+│   │       └── page.tsx
+│   ├── api/
+│   │   ├── applications/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── auth/
+│   │   │   ├── logout/
+│   │   │   │   └── route.ts
+│   │   │   ├── profile/
+│   │   │   │   └── student/
+│   │   │   │       └── route.ts
+│   │   │   ├── reset-password/
+│   │   │   │   └── route.ts
+│   │   │   ├── student/
+│   │   │   │   ├── signin/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── signup/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── skill/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── update/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── upload/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── verify-otp/
+│   │   │   │       └── route.ts
+│   │   │   └── update-password/
+│   │   │       └── route.ts
+│   │   ├── payments/
+│   │   │   └── verify/
+│   │   │       └── route.ts
+│   │   ├── plans/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── professors/
+│   │   │   └── [id]/
+│   │   │       ├── projects/
+│   │   │       │   └── route.ts
+│   │   │       └── route.ts
+│   │   ├── projects/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   ├── category/
+│   │   │   │   └── route.ts
+│   │   │   ├── enroll/
+│   │   │   │   └── route.ts
+│   │   │   ├── list/
+│   │   │   │   ├── closed/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── overdue/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── unenroll/
+│   │   │       └── route.ts
+│   │   ├── purchase/
+│   │   │   └── route.ts
+│   │   ├── skills/
+│   │   │   └── route.ts
+│   │   └── subscriptions/
+│   │       └── route.ts
+│   ├── globals.css
+│   └── layout.tsx
+├── components.json
+├── components/
+│   ├── ProjectDetails.tsx
+│   ├── animata/
+│   │   ├── bento-grid/
+│   │   │   └── eight.tsx
+│   │   ├── button/
+│   │   │   └── get-started-button.tsx
+│   │   ├── graphs/
+│   │   │   └── bar-chart.tsx
+│   │   └── text/
+│   │       ├── counter.tsx
+│   │       ├── ticker.tsx
+│   │       └── typing-text.tsx
+│   ├── app-sidebar.tsx
+│   ├── dashboard/
+│   │   ├── ProfileBanner.tsx
+│   │   ├── applications-list.tsx
+│   │   ├── cvDisplay.tsx
+│   │   ├── header.tsx
+│   │   └── student-profile.tsx
+│   ├── gradientcircle.tsx
+│   ├── header.tsx
+│   ├── home.tsx
+│   ├── no_project.tsx
+│   ├── professor/
+│   │   ├── ProfileBanner.tsx
+│   │   ├── closeDialog.tsx
+│   │   ├── header.tsx
+│   │   ├── professor-profile.tsx
+│   │   └── projects-list.tsx
+│   ├── projects-list.tsx
+│   └── ui/
+│       ├── alert.tsx
+│       ├── avatar.tsx
+│       ├── badge.tsx
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── checkbox.tsx
+│       ├── command.tsx
+│       ├── dialog.tsx
+│       ├── dropdown-menu.tsx
+│       ├── form.tsx
+│       ├── gradient-heading.tsx
+│       ├── input-otp.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── logo-carousel.tsx
+│       ├── popover.tsx
+│       ├── progress.tsx
+│       ├── select.tsx
+│       ├── separator.tsx
+│       ├── sheet.tsx
+│       ├── sidebar.tsx
+│       ├── skeleton.tsx
+│       ├── slider.tsx
+│       ├── sonner.tsx
+│       ├── sticky-banner.tsx
+│       ├── switch.tsx
+│       ├── table.tsx
+│       ├── text-gif.tsx
+│       ├── textarea.tsx
+│       ├── tooltip.tsx
+│       └── typewriter.tsx
+├── contexts/
+│   ├── categorySkillsContext.tsx
+│   ├── dashboardContext.tsx
+│   └── professorDashboardContext.tsx
+├── eslint.config.mjs
+├── hooks/
+│   └── use-mobile.tsx
+├── lib/
+│   ├── auth.ts
+│   ├── cloudinary.ts
+│   ├── email.ts
+│   ├── prisma.ts
+│   ├── utils.ts
+│   └── validations.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── prisma/
+│   ├── migrations/
+│   │   ├── 20250412134335_init/
+│   │   │   └── migration.sql
+│   │   ├── 20250412165149_professor/
+│   │   │   └── migration.sql
+│   │   ├── 20250515131417_plan_cycle_enum/
+│   │   │   └── migration.sql
+│   │   ├── 20250520044104_plan/
+│   │   │   └── migration.sql
+│   │   ├── 20250526131944_updated/
+│   │   │   └── migration.sql
+│   │   ├── 20250531063324_is_updated/
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   └── schema.prisma
+├── public/
+│   ├── 1.png
+│   ├── 3.png
+│   ├── 4.png
+│   ├── 5.png
+│   ├── 6.png
+│   ├── AIIMSJAMMU.png
+│   ├── IITJAMMU.png
+│   ├── LOGO.svg
+│   ├── MIETJAMMU.png
+│   ├── UNIJAMMU.png
+│   ├── bgHome.jpg
+│   ├── favicon.ico
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── logo-master.png
+│   ├── logo.png
+│   ├── next.svg
+│   ├── pdf.worker.min.mjs
+│   ├── vercel.svg
+│   └── window.svg
+├── tailwind.config.ts
+├── tsconfig.json
+├── types/
+│   ├── api-professor.ts
+│   ├── api.ts
+│   ├── profile.ts
+│   └── project.ts
+└── utils/
+    ├── auth.ts
+    ├── project-id.ts
+    └── redirect-student.ts
+```
+---
 
 ## 🧠 Architecture Highlights
 
